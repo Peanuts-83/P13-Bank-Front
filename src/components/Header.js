@@ -2,14 +2,12 @@ import logo from '../assets/argentBankLogo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { initProfil } from '../utils/slices/userIdSlice'
+// import { initProfile } from '../utils/slices/userIdSlice'
 import { userInfosSelector } from '../utils/selectors'
 
 const Header = () => {
   const connected = useSelector(state => state.user.status === 'connected')
-  const userinfos = useSelector(state => userInfosSelector(state))
-  // const {firstname, lastname, email, password} = userinfos
-
+  const {firstName} = useSelector(state => userInfosSelector(state))
 
   return (
     <header className='main-nav'>
@@ -17,9 +15,9 @@ const Header = () => {
       <img className='main-nav-logo-image' src={logo} alt='logo' />
     </Link>
     {connected ? (
-      <Link to='/' className='main-nav-item' onClick="initProfil">
+      <Link to='/' className='main-nav-item' onClick="initProfile">
         <FontAwesomeIcon className='fa fa-circle-user' icon="circle-user" />
-        {null}
+        {firstName}
         <FontAwesomeIcon className='fa fa-sign-out' icon="sign-out" />
         Sign Out
       </Link>

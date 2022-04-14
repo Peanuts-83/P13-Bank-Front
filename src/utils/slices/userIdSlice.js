@@ -1,16 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { statusSelector, tokenSelector } from '../selectors'
+import { statusSelector, tokenSelector, userInfosSelector } from '../selectors'
 
 const initialState = {
     status: 'void',
     token: null,
     error: null,
     infos: {
+        firstName: null,
+        lastName: null,
+        id: null,
+        email: null,
     }
 }
 
-export async function initProfil() {
+export async function initProfile() {
     return async (dispatch, getState) => {
         const status = statusSelector(getState())
         alert('STATUS initProfil', status)
@@ -109,7 +113,7 @@ const { actions, reducer } = createSlice({
             }
         },
         resolved: {
-            prepare: (bearerToken, data) => ({
+            prepare: (bearerToken, data = initialState.infos) => ({
                 payload: { bearerToken, data }
             }),
             reducer: (draft, action) => {

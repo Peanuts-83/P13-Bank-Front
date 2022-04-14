@@ -6,6 +6,7 @@ import { faCircleUser, faSignOut } from '@fortawesome/free-solid-svg-icons'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import store from './utils/store'
 import { Provider } from 'react-redux'
+import { CookiesProvider } from 'react-cookie'
 
 library.add(faCircleUser, faSignOut)
 
@@ -13,6 +14,8 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
     <Provider store={store}>
-        <Router tab="home" />
+        <CookiesProvider>
+            <Router tab="home" />
+        </CookiesProvider>
     </Provider>
 );

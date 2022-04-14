@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { getUserProfile } from '../utils/slices/userIdSlice'
-import { tokenSelector } from '../utils/selectors'
+import { tokenSelector, userInfosSelector } from '../utils/selectors'
 
 const User = () => {
   // TODO: check token in redux || localstorage
@@ -9,6 +9,7 @@ const User = () => {
   // TODO: if !connected navigate ('/)
   const dispatch = useDispatch()
   const token = useSelector(tokenSelector)
+  const {firstName} = useSelector(state => userInfosSelector(state))
   useEffect(() => {
     dispatch(getUserProfile(token))
   }, [dispatch, token])
@@ -17,7 +18,7 @@ const User = () => {
   return (
     <main className="main bg-dark">
       <div className="header">
-        <h1>Welcome back<br />Tony Jarvis!</h1>
+        <h1>Welcome back<br />{firstName}</h1>
         <button className="edit-button">Edit Name</button>
       </div>
       <h2 className="sr-only">Accounts</h2>
