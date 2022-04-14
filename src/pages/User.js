@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { getUserProfile } from '../utils/slices/userIdSlice'
+import { tokenSelector } from '../utils/selectors'
 
 const User = () => {
   // TODO: check token in redux || localstorage
   // TODO: if not redux, getUserProfile with localstorage token
   // TODO: if !connected navigate ('/)
-  // const dispatch = useDispatch()
-  // const token = useSelector(state => state.user.token)
-  // useEffect(() => dispatch(getUserProfile(token)), [token])
+  const dispatch = useDispatch()
+  const token = useSelector(tokenSelector)
+  useEffect(() => {
+    dispatch(getUserProfile(token))
+  }, [dispatch, token])
 
 
   return (
