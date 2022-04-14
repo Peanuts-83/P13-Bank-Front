@@ -1,0 +1,1 @@
+export const userInfos = state => state.user.infos
