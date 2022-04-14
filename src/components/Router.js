@@ -1,5 +1,4 @@
 
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer';
@@ -11,6 +10,8 @@ import Error404 from '../pages/Error404';
 
 
 function Router() {
+
+
   return (
     <BrowserRouter>
       <Header />

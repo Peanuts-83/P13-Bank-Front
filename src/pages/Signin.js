@@ -8,8 +8,8 @@ const Signin = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const dispatch = useDispatch()
-  const connected = useSelector(state => state.user.status === 'connected')
   const navigate = useNavigate()
+  const connected = useSelector(state => state.user.status === 'connected')
 
   function signIn(e) {
     e.preventDefault()

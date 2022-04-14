@@ -2,9 +2,10 @@ import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { statusSelector, tokenSelector, userInfosSelector } from '../selectors'
 
+
 const initialState = {
     status: 'void',
-    token: null,
+    // token: null,
     error: null,
     infos: {
         firstName: null,
@@ -44,6 +45,7 @@ export function loginUser(email, password) {
             // console.log('RESPONSE -', response)
             const token = await response.data.body.token
             const bearerToken = `Bearer ${token}`
+
             console.log('TOKEN -', bearerToken)
             // TODO: token lifetime
             dispatch(resolved(bearerToken))
@@ -120,9 +122,9 @@ const { actions, reducer } = createSlice({
                 console.log('resolve -', action.payload)
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
-                    draft.token = action.payload.bearerToken
+                    // draft.token = action.payload.bearerToken
                     draft.infos = action.payload.data
-                    localStorage.setItem('ARGENTBANK_Token', action.payload.bearerToken)
+                    sessionStorage.setItem('ARGENTBANK_Token', action.payload.bearerToken)
                     return
                 }
                 return

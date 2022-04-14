@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { getUserProfile } from '../utils/slices/userIdSlice'
-import { tokenSelector, userInfosSelector } from '../utils/selectors'
+import { userInfosSelector } from '../utils/selectors'
 
 const User = () => {
   // TODO: check token in redux || localstorage
   // TODO: if not redux, getUserProfile with localstorage token
   // TODO: if !connected navigate ('/)
   const dispatch = useDispatch()
-  const token = useSelector(tokenSelector)
-  const {firstName} = useSelector(state => userInfosSelector(state))
+  const token = sessionStorage.ARGENTBANK_Token
+  const { firstName } = useSelector(state => userInfosSelector(state))
+
   useEffect(() => {
     dispatch(getUserProfile(token))
   }, [dispatch, token])
