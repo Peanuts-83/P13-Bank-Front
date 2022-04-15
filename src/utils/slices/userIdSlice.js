@@ -1,17 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { statusSelector, tokenSelector, userInfosSelector } from '../selectors'
+import { act } from 'react-dom/test-utils'
+import { rememberMeSelector, statusSelector, tokenSelector, userInfosSelector } from '../selectors'
 
 
 const initialState = {
     status: 'void',
-    // token: null,
+    rememberMe: localStorage.getItem('ARGENTBANK_rememberMe') === 'true' || false,
     error: null,
     infos: {
         firstName: null,
         lastName: null,
         id: null,
         email: null,
+    }
+}
+
+export function setRememberMe(value) {
+    return (dispatch) => {
+        dispatch(remember(value))
+        localStorage.setItem('ARGENTBANK_rememberMe', value)
     }
 }
 
@@ -28,10 +36,13 @@ export async function initProfile() {
     }
 }
 
-export function loginUser(email, password) {
+export function loginUser(email, password, rememberMe) {
     console.log('START LoginUser', email, password)
     // return a thunk
     return async (dispatch, getState) => {
+        if (!rememberMe) {
+            rememberMe = rememberMeSelector(getState())
+        }
         console.log('From async LoginUser')
         const status = statusSelector(getState())
         // console.log('STATUS loginUser', status)
@@ -47,8 +58,7 @@ export function loginUser(email, password) {
             const bearerToken = `Bearer ${token}`
 
             console.log('TOKEN -', bearerToken)
-            // TODO: token lifetime
-            dispatch(resolved(bearerToken))
+            dispatch(resolved(bearerToken, rememberMe))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             dispatch(rejected(error.message))
@@ -59,6 +69,7 @@ export function loginUser(email, password) {
 export function getUserProfile(token) {
     console.log('START getUserProfile', token)
     return async (dispatch, getState) => {
+        const rememberMe = rememberMeSelector(getState())
         console.log('From async THUNK')
         const status = statusSelector(getState())
         console.log('STATUS getUserProfile', status)
@@ -79,9 +90,10 @@ export function getUserProfile(token) {
                     }
                 })
             console.log('RESPONSE -', response)
-            const data = await response.data.body
+            let data = await response.data.body
+            // data = JSON.stringify(data)
             console.log('DATA -', data)
-            dispatch(resolved(token, data))
+            dispatch(resolved(token, rememberMe, data))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             dispatch(rejected(error.message))
@@ -99,9 +111,10 @@ const { actions, reducer } = createSlice({
     reducers: {
         init: (draft) => {
             console.log('INITIALIZING STATE')
-            draft = initialState
+            draft = { ...initialState, rememberMe: draft.rememberMe }
             return
-        }
+        },
+        remember: (draft, action) => { draft.rememberMe = action.payload }
         ,
         fetching: (draft) => {
             // console.log('fetching')
@@ -115,16 +128,20 @@ const { actions, reducer } = createSlice({
             }
         },
         resolved: {
-            prepare: (bearerToken, data = initialState.infos) => ({
-                payload: { bearerToken, data }
+            prepare: (bearerToken, rememberMe = false, data = initialState.infos) => ({
+                payload: { bearerToken, rememberMe, data }
             }),
             reducer: (draft, action) => {
                 console.log('resolve -', action.payload)
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
-                    // draft.token = action.payload.bearerToken
+                    draft.rememberMe = action.payload.rememberMe
                     draft.infos = action.payload.data
-                    sessionStorage.setItem('ARGENTBANK_Token', action.payload.bearerToken)
+                    localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
+                    sessionStorage.setItem('ARGENTBANK_token', action.payload.bearerToken)
+                    if (draft.infos.firstName !== null) {
+                        sessionStorage.setItem('ARGENTBANK_userInfos', JSON.stringify(action.payload.data))
+                    }
                     return
                 }
                 return
@@ -147,5 +164,5 @@ const { actions, reducer } = createSlice({
     }
 })
 
-const { init, fetching, resolved, rejected } = actions
+const { init, remember, fetching, resolved, rejected } = actions
 export default reducer

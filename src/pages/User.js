@@ -4,11 +4,15 @@ import { getUserProfile } from '../utils/slices/userIdSlice'
 import { userInfosSelector } from '../utils/selectors'
 
 const User = () => {
-  // TODO: check token in redux || localstorage
+  // TODO: check token in sessionstorage
   // TODO: if not redux, getUserProfile with localstorage token
   // TODO: if !connected navigate ('/)
   const dispatch = useDispatch()
-  const token = sessionStorage.ARGENTBANK_Token
+  const token = sessionStorage.ARGENTBANK_token || ''
+
+  if (sessionStorage.ARGENTBANK_userInfos) {
+
+  }
   const { firstName } = useSelector(state => userInfosSelector(state))
 
   useEffect(() => {
