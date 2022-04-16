@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { getUserProfile, initProfile, updateUserProfile } from '../utils/slices/userIdSlice'
-import { statusSelector, userInfosSelector } from '../utils/selectors'
+import { userInfosSelector } from '../utils/selectors'
 import { useNavigate } from 'react-router-dom'
 
 const User = () => {
@@ -28,18 +28,6 @@ const User = () => {
       }
     }
   }, [dispatch, navigate, token])
-
-  // function updateValue(target, value) {
-  //   const values = {
-  //     firstName: firstName,
-  //     lastName: lastName,
-  //     email: email
-  //   }
-  //   console.log('TARGET/VALUE -', target, value, values['firstName'], firstName)
-  //   values[target] = value
-  //   // firstName = value
-  //   console.log(firstName, lastName)
-  // }
 
   function updateProfile(e) {
     e.preventDefault()
@@ -114,6 +102,7 @@ const User = () => {
         <button className='profile-form-close-btn' onClick={closeProfileForm}>X</button>
         <h1>Your personnal informations</h1>
         <p><em>( Account created at {createdAt} )</em></p>
+        <h2>{email}</h2>
         <form className='profile-form' onSubmit={e => updateProfile(e)}>
           <div className="input-wrapper profile-wrapper">
             <label htmlFor="firstName">Fist Name</label>
@@ -121,21 +110,12 @@ const User = () => {
               type="text"
               id="firstName"
               placeholder={firstName}
-            // onChange={e => updateValue('firstName', e.target.value)}
             /><br />
             <label htmlFor="lastName">Last Name</label>
             <input
               type="text"
               id="lastName"
               placeholder={lastName}
-            // onChange={e => updateValue('lastName', e.target.value)}
-            /><br />
-            <label htmlFor="email">email</label>
-            <input
-              type="text"
-              id="email"
-              placeholder={email}
-            // onChange={e => updateValue('email', e.target.value)}
             /><br />
             <input className='profile-form-save-btn' type='submit' value='Save' />
           </div>

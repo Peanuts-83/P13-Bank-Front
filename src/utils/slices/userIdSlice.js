@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { rememberMeSelector, statusSelector, tokenSelector, userInfosSelector } from '../selectors'
+import { rememberMeSelector, statusSelector  } from '../selectors'
 
 
 const initialState = {
