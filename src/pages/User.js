@@ -4,16 +4,18 @@ import { getUserProfile, initProfile, updateUserProfile } from '../utils/slices/
 import { userInfosSelector } from '../utils/selectors'
 import { useNavigate } from 'react-router-dom'
 
+/**
+ * It displays user Page & takes the profile form data, and updates the user's profile
+ * @returns A React component
+ */
 const User = () => {
-  // TODO: check token in sessionstorage
-  // TODO: if not redux, getUserProfile with localstorage token
-  // TODO: if !connected navigate ('/)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const token = sessionStorage.ARGENTBANK_token
   let { firstName, lastName, email, createdAt } = useSelector(state => userInfosSelector(state))
   const profileForm = document.querySelector('.profile')
 
+  // Check token to grant access or throw to /signin page
   useEffect(() => {
     if (!token) {
       dispatch(initProfile())
@@ -29,6 +31,11 @@ const User = () => {
     }
   }, [dispatch, navigate, token])
 
+  /**
+   * It takes the form data, and updates the user's profile
+   * @param e - the event object
+   * @callback updateUserProfile - Dispatch new profile
+   */
   function updateProfile(e) {
     e.preventDefault()
     closeProfileForm()
@@ -45,7 +52,6 @@ const User = () => {
         values[Object.keys(values)[index]] = Object.values(e.target)[index].value
       }
     })
-    console.log(values)
     setTimeout(() => dispatch(updateUserProfile(token, values)), 500)
   }
 
@@ -55,10 +61,8 @@ const User = () => {
   }
 
   function showProfileForm() {
-    console.log('SHOW PROFILE');
     profileForm.style.top = '0'
     profileForm.style.opacity = '1'
-
   }
 
   return (

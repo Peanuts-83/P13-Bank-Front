@@ -134,6 +134,7 @@
 
 .input-remember {
     display: flex;
+    align-items: baseline;
 }
 
 .input-remember label {
@@ -150,6 +151,17 @@
 
 .input-wrapper label {
     font-weight: bold;
+}
+
+.error-msg {
+    opacity: 0;
+    margin-top: 3px;
+    color: red;
+    font-size: .7rem;
+}
+
+.error-show {
+    opacity: 1;
 }
 
 .input-wrapper input {

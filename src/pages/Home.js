@@ -5,8 +5,14 @@ import {initProfile} from '../utils/slices/userIdSlice'
 import {useDispatch} from 'react-redux'
 
 
+/**
+ * It renders Homepage
+ * @returns A function that returns a main element with a div and a section.
+ */
 const Home = () => {
     const dispatch = useDispatch()
+
+    // Initiate user profile
     useEffect(() => {
         dispatch(initProfile())
     })
