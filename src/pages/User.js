@@ -12,6 +12,7 @@ const User = () => {
   const navigate = useNavigate()
   const token = sessionStorage.ARGENTBANK_token
   let { firstName, lastName, email, createdAt } = useSelector(state => userInfosSelector(state))
+  const profileForm = document.querySelector('.profile')
 
   useEffect(() => {
     if (!token) {
@@ -42,6 +43,7 @@ const User = () => {
 
   function updateProfile(e) {
     e.preventDefault()
+    closeProfileForm()
     const values = {
       firstName: firstName,
       lastName: lastName,
@@ -59,11 +61,23 @@ const User = () => {
     setTimeout(() => dispatch(updateUserProfile(token, values)), 500)
   }
 
+  function closeProfileForm() {
+    profileForm.style.top = '-100%'
+    profileForm.style.opacity = '0'
+  }
+
+  function showProfileForm() {
+    console.log('SHOW PROFILE');
+    profileForm.style.top = '0'
+    profileForm.style.opacity = '1'
+
+  }
+
   return (
     <main className="main bg-dark">
       <div className="header">
         <h1>Welcome back<br />{firstName}</h1>
-        <button className="edit-button">Edit Name</button>
+        <button className="edit-button" onClick={showProfileForm}>Edit Name</button>
       </div>
       <h2 className="sr-only">Accounts</h2>
       <section className="account">
@@ -97,35 +111,35 @@ const User = () => {
         </div>
       </section>
       <section className='profile'>
-        <div className="account-content-wrapper">
-          <h1>Your personnal informations:</h1>
-          <p>Account created at {createdAt}</p>
-          <form className='profile-form' onSubmit={e => updateProfile(e)}>
+        <button className='profile-form-close-btn' onClick={closeProfileForm}>X</button>
+        <h1>Your personnal informations</h1>
+        <p><em>( Account created at {createdAt} )</em></p>
+        <form className='profile-form' onSubmit={e => updateProfile(e)}>
+          <div className="input-wrapper profile-wrapper">
             <label htmlFor="firstName">Fist Name</label>
             <input
               type="text"
               id="firstName"
               placeholder={firstName}
-              // onChange={e => updateValue('firstName', e.target.value)}
-            />
+            // onChange={e => updateValue('firstName', e.target.value)}
+            /><br />
             <label htmlFor="lastName">Last Name</label>
             <input
               type="text"
               id="lastName"
               placeholder={lastName}
-              // onChange={e => updateValue('lastName', e.target.value)}
-            />
+            // onChange={e => updateValue('lastName', e.target.value)}
+            /><br />
             <label htmlFor="email">email</label>
             <input
               type="text"
               id="email"
               placeholder={email}
-              // onChange={e => updateValue('email', e.target.value)}
-            />
-            <input className='profile-form-save-btn' type='submit' />
-          </form>
-        </div>
-
+            // onChange={e => updateValue('email', e.target.value)}
+            /><br />
+            <input className='profile-form-save-btn' type='submit' value='Save' />
+          </div>
+        </form>
       </section>
     </main>
   )
