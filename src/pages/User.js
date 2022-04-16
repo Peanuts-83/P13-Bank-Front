@@ -19,14 +19,14 @@ const User = () => {
   useEffect(() => {
     if (!token) {
       dispatch(initProfile())
-      navigate('/login')
+      navigate('/signin')
     } else {
       try {
         dispatch(getUserProfile(token))
       } catch (error) {
         console.log('ERROR GETTING USER DATA -', error)
         dispatch(initProfile())
-        navigate('/login')
+        navigate('/signin')
       }
     }
   }, [dispatch, navigate, token])

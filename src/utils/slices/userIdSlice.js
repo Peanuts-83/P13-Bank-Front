@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { rememberMeSelector, statusSelector } from '../selectors'
 
+
+
 // User initial state
 const initialState = {
     status: 'void',
@@ -56,7 +58,7 @@ export function initProfile() {
  * @param {boolean} rememberMe
  * @returns A thunk
  */
-export function loginUser(email, password, rememberMe) {
+export function signinUser(email, password, rememberMe) {
     return async (dispatch, getState) => {
         if (!rememberMe) {
             rememberMe = rememberMeSelector(getState())
@@ -70,6 +72,41 @@ export function loginUser(email, password, rememberMe) {
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             alert('User unknown\n Please try again...')
+            dispatch(rejected(error.message))
+        }
+    }
+}
+
+
+/**
+ * Manage CREATING new user profile
+ * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
+ * resolved or rejected action based on the result of the API call
+ * @param {string} fName - Firstname
+ * @param {string} lName - Lastname
+ * @param {string} email - Email
+ * @param {string} password - Password
+ * @returns A thunk
+ */
+export function createUser(fName, lName, email, password) {
+    return async (dispatch, getState) => {
+        const status = statusSelector(getState())
+        if (status === 'connected') {
+            alert('Please disconnect to create new Account')
+            return
+        }
+        dispatch(fetching())
+        try {
+            const response = await axios.post('http://127.0.0.1:3001/api/v1/user/signup', {
+                email: email,
+                password: password,
+                firstName: fName,
+                lastName: lName
+            })
+            dispatch(resolvedCreation(response.data.body))
+        } catch (error) {
+            console.log('ERROR CREATING ACCOUNT -', error)
+            alert('Unable to create new account. \nPlease retry later...')
             dispatch(rejected(error.message))
         }
     }
@@ -187,7 +224,7 @@ const { actions, reducer } = createSlice({
                     draft.rememberMe = action.payload.rememberMe
                     draft.infos = action.payload.data
                     localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
-                    // Add token to sessionStorage on login
+                    // Add token to sessionStorage on signin
                     // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
                     sessionStorage.setItem('ARGENTBANK_token', action.payload.bearerToken)
                     if (draft.infos.firstName !== null) {
@@ -197,6 +234,12 @@ const { actions, reducer } = createSlice({
                 }
                 return
             }
+        },
+        resolvedCreation: (draft, action) => {
+            draft.status = 'void'
+            console.log(`New user created \nID: ${action.payload._id} \nEMAIL: ${action.payload.email}`);
+            alert('User account successfully created!')
+            return
         },
         rejected: {
             prepare: (error) => ({
@@ -215,5 +258,5 @@ const { actions, reducer } = createSlice({
 })
 
 // Actions & Reducer from CreateSlice()
-const { init, remember, fetching, resolved, rejected } = actions
+const { init, remember, fetching, resolved, resolvedCreation, rejected } = actions
 export default reducer

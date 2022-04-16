@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { loginUser, setRememberMe } from "../utils/slices/userIdSlice"
+import { signinUser, setRememberMe } from "../utils/slices/userIdSlice"
 import { rememberMeSelector, statusSelector } from "../utils/selectors"
 
 
@@ -37,9 +37,9 @@ const Signin = () => {
       return
     }
     if (e.target[2].checked) {
-      dispatch(loginUser(email, password, true))
+      dispatch(signinUser(email, password, true))
     } else {
-      dispatch(loginUser(email, password))
+      dispatch(signinUser(email, password))
     }
   }
 
@@ -109,6 +109,7 @@ const Signin = () => {
           </div>
           <input className="sign-in-button" type="submit" value="Sign In" />
         </form>
+        <Link to="/signup">No account? Signup here...</Link>
       </section>
     </main>
   )

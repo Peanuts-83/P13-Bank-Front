@@ -7,9 +7,9 @@ import { userInfosSelector } from '../utils/selectors'
 
 
 /**
- * It returns a header with a logo, a link to the home page, and a link to the login page if the user
+ * It returns a header with a logo, a link to the home page, and a link to the signin page if the user
  * is not connected, and a link to the home page and a link to sign out if the user is connected
- * @returns A header with a logo and a link to the login page.
+ * @returns A header with a logo and a link to the signin page.
  */
 const Header = () => {
   const connected = useSelector(state => state.user.status === 'connected')
@@ -28,7 +28,7 @@ const Header = () => {
         Sign Out
       </Link>
     ):(
-      <Link to="/login" className='main-nav-item'>
+      <Link to="/signin" className='main-nav-item'>
         <FontAwesomeIcon className='fa fa-circle-user' icon="circle-user" />
         Sign In
       </Link>
