@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { act } from 'react-dom/test-utils'
 import { rememberMeSelector, statusSelector, tokenSelector, userInfosSelector } from '../selectors'
 
 
@@ -23,14 +22,17 @@ export function setRememberMe(value) {
     }
 }
 
-export async function initProfile() {
+export function initProfile() {
+    console.log('INITIALIZATION')
     return async (dispatch, getState) => {
         const status = statusSelector(getState())
-        alert('STATUS initProfil', status)
+        console.log('STATUS -', status)
         if (status === 'connected') {
             console.log('DISCONNECTING - Empty User Credentials')
             // TODO: empty localhost token
             dispatch(init())
+        } else {
+            console.log('NOthing to INIT - status', status)
         }
         return
     }
@@ -73,7 +75,7 @@ export function getUserProfile(token) {
         console.log('From async THUNK')
         const status = statusSelector(getState())
         console.log('STATUS getUserProfile', status)
-        if (status !== 'connected') {
+        if (status !== 'connected' && status !== 'void') {
             console.log('EXITING / Status -', status)
             return
         }
@@ -110,8 +112,10 @@ const { actions, reducer } = createSlice({
     // reducer & actions
     reducers: {
         init: (draft) => {
-            console.log('INITIALIZING STATE')
-            draft = { ...initialState, rememberMe: draft.rememberMe }
+            console.log('INIT action');
+            draft.status = 'void'
+            draft.infos = initialState.infos
+            sessionStorage.removeItem('ARGENTBANK_token')
             return
         },
         remember: (draft, action) => { draft.rememberMe = action.payload }
@@ -140,7 +144,7 @@ const { actions, reducer } = createSlice({
                     localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
                     sessionStorage.setItem('ARGENTBANK_token', action.payload.bearerToken)
                     if (draft.infos.firstName !== null) {
-                        sessionStorage.setItem('ARGENTBANK_userInfos', JSON.stringify(action.payload.data))
+                        localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify(action.payload.data))
                     }
                     return
                 }

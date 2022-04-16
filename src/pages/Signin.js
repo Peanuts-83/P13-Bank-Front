@@ -16,9 +16,9 @@ const Signin = () => {
 
   useEffect(() => {
     if (rememberMe &&
-      sessionStorage.ARGENTBANK_userInfos &&
-      sessionStorage.ARGENTBANK_userInfos.email !== null) {
-      setEmail(JSON.parse(sessionStorage.ARGENTBANK_userInfos).email)
+      localStorage.ARGENTBANK_userInfos &&
+      localStorage.ARGENTBANK_userInfos.email !== null) {
+      setEmail(JSON.parse(localStorage.ARGENTBANK_userInfos).email)
       document.querySelector('#remember-me').setAttribute('checked', true)
     }
     console.log('REMEMBER', rememberMe)

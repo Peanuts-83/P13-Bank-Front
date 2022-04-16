@@ -1,24 +1,33 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getUserProfile } from '../utils/slices/userIdSlice'
-import { userInfosSelector } from '../utils/selectors'
+import { getUserProfile, initProfile } from '../utils/slices/userIdSlice'
+import { statusSelector, userInfosSelector } from '../utils/selectors'
+import { useNavigate } from 'react-router-dom'
 
 const User = () => {
   // TODO: check token in sessionstorage
   // TODO: if not redux, getUserProfile with localstorage token
   // TODO: if !connected navigate ('/)
   const dispatch = useDispatch()
-  const token = sessionStorage.ARGENTBANK_token || ''
-
-  if (sessionStorage.ARGENTBANK_userInfos) {
-
-  }
+  const navigate = useNavigate()
+  const token = sessionStorage.ARGENTBANK_token
   const { firstName } = useSelector(state => userInfosSelector(state))
+  const status = useSelector(state => statusSelector(state))
 
   useEffect(() => {
-    dispatch(getUserProfile(token))
-  }, [dispatch, token])
-
+    if(!token) {
+      dispatch(initProfile())
+      navigate('/login')
+    } else {
+      try{
+        dispatch(getUserProfile(token))
+      } catch(error) {
+        console.log('ERROR GETTING USER DATA -', error)
+        dispatch(initProfile())
+        navigate('/login')
+      }
+    }
+  }, [dispatch, navigate, token])
 
   return (
     <main className="main bg-dark">

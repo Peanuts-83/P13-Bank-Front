@@ -15,7 +15,7 @@ const Header = () => {
       <img className='main-nav-logo-image' src={logo} alt='logo' />
     </Link>
     {connected ? (
-      <Link to='/' className='main-nav-item' onClick="initProfile">
+      <Link to='/' className='main-nav-item'>
         <FontAwesomeIcon className='fa fa-circle-user' icon="circle-user" />
         {firstName}
         <FontAwesomeIcon className='fa fa-sign-out' icon="sign-out" />
