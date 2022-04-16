@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUser, setRememberMe } from "../utils/slices/userIdSlice"
@@ -14,8 +14,8 @@ const Signin = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const emailError = document.querySelector('.usermail')
-  const passwordError = document.querySelector('.userpassword')
+  const emailError = useRef(null)
+  const passwordError = useRef(null)
   const [formValidator, setFormValidator] = useState(false)
   const connected = useSelector(state => statusSelector(state) === 'connected')
   const rememberMe = useSelector(state => rememberMeSelector(state) === true)
@@ -34,7 +34,6 @@ const Signin = () => {
   function logIn(e) {
     e.preventDefault()
     if (!formValidator) {
-      console.log('VALIDATOR', formValidator);
       return
     }
     if (e.target[2].checked) {
@@ -46,29 +45,26 @@ const Signin = () => {
 
   // Validate each input and sets value for email & password
   function validateForm(type, value) {
-    console.log(type, value)
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
     switch (type) {
       case 'email':
         setEmail(value)
-        console.log('now', email)
         if (!emailRegex.test(value)) {
-          emailError.classList.add('error-show')
+          emailError.current.className = 'error-msg error-show'
           setFormValidator(false)
           return
         } else {
-          emailError.classList.remove('error-show')
+          emailError.current.className = 'error-msg'
         }
         break
       default:
         setPassword(value)
-        console.log(password);
         if (value.length < 6) {
-          passwordError.classList.add('error-show')
+          passwordError.current.className = 'error-msg error-show'
           setFormValidator(false)
           return
         } else {
-          passwordError.classList.remove('error-show')
+          passwordError.current.className = 'error-msg'
         }
         break
     }
@@ -96,7 +92,7 @@ const Signin = () => {
               id="usermail"
               onChange={e => validateForm('email', e.target.value)}
             />
-            <div className="error-msg usermail">This is not a correct email</div>
+            <div className="error-msg" ref={emailError}>This is not a correct email</div>
           </div>
           <div className="input-wrapper">
             <label htmlFor="userpassword">Password</label>
@@ -105,7 +101,7 @@ const Signin = () => {
               id="userpassword"
               onChange={e => validateForm('password', e.target.value)}
             />
-            <div className="error-msg userpassword">Password should be at least 6 characters long</div>
+            <div className="error-msg" ref={passwordError}>Password should be at least 6 characters long</div>
           </div>
           <div className="input-remember">
             <input type="checkbox" id="remember-me" onClick={toggleRememberMe} />
