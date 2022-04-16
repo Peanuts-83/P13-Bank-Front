@@ -1,5 +1,6 @@
 .main {
     flex: 1;
+    position: relative;
 }
 
 .bg-dark {
@@ -311,4 +312,13 @@
 .error-image {
     width: 60%;
     max-width: 840px;
+}
+
+.profile {
+    position: absolute;
+    top: 0;
+    left: calc((100vw / 2) - 150px);
+    background-color: white;
+    padding: 30px;
+    border-radius: 30px;
 }

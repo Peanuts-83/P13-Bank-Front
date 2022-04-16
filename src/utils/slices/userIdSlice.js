@@ -45,9 +45,8 @@ export function loginUser(email, password, rememberMe) {
         if (!rememberMe) {
             rememberMe = rememberMeSelector(getState())
         }
-        console.log('From async LoginUser')
+        console.log('START LoginUser')
         const status = statusSelector(getState())
-        // console.log('STATUS loginUser', status)
         if (status === 'pending' || status === 'updating') {
             console.log('EXITING / Status -', status)
             return
@@ -72,14 +71,11 @@ export function getUserProfile(token) {
     console.log('START getUserProfile', token)
     return async (dispatch, getState) => {
         const rememberMe = rememberMeSelector(getState())
-        console.log('From async THUNK')
         const status = statusSelector(getState())
-        console.log('STATUS getUserProfile', status)
         if (status !== 'connected' && status !== 'void') {
             console.log('EXITING / Status -', status)
             return
         }
-        console.log('FETCHING -', fetching)
         dispatch(fetching())
         try {
             // const token = tokenSelector(getState())
@@ -87,14 +83,39 @@ export function getUserProfile(token) {
                 'http://127.0.0.1:3001/api/v1/user/profile',
                 { request: "getUserProfile" },
                 {
-                    headers: {
-                        Authorization: token
-                    }
+                    headers: { Authorization: token }
                 })
-            console.log('RESPONSE -', response)
             let data = await response.data.body
-            // data = JSON.stringify(data)
-            console.log('DATA -', data)
+            dispatch(resolved(token, rememberMe, data))
+        } catch (error) {
+            console.log('ERROR CONNECTING -', error)
+            dispatch(rejected(error.message))
+        }
+    }
+}
+
+export function updateUserProfile(token, values) {
+    console.log('START updateUserProfile', values)
+    return async (dispatch, getState) => {
+        const rememberMe = rememberMeSelector(getState())
+        const status = statusSelector(getState())
+        if (status !== 'connected' && status !== 'void') {
+            console.log('EXITING / Status -', status)
+            return
+        }
+        dispatch(fetching())
+        try {
+            const response = await axios.put(
+                'http://127.0.0.1:3001/api/v1/user/profile',
+                {
+                    firstName: values.firstName,
+                    lastName: values.lastName,
+                },
+                {
+                    headers: { Authorization: token }
+                })
+            const data = response.data.body
+            console.log('UPDATE Data -', data)
             dispatch(resolved(token, rememberMe, data))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
