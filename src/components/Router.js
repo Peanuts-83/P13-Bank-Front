@@ -22,7 +22,7 @@ function Router() {
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/user" element={<User />} />
+        <Route path="/user/:userId" element={<User />} />
         <Route path="*" element={<Error404 />} />
       </Routes>
       <Footer />

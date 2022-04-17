@@ -7,7 +7,7 @@ import {
   getUserTransactions
 } from '../utils/slices/userIdSlice'
 import { userInfosSelector } from '../utils/selectors'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 /**
  * It displays user Page & takes the profile form data, and updates the user's profile
@@ -16,8 +16,9 @@ import { useNavigate } from 'react-router-dom'
 const User = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const {userId} = useParams()
   const token = sessionStorage.ARGENTBANK_token
-  let { firstName, lastName, email, createdAt } = useSelector(state => userInfosSelector(state))
+  let { firstName, lastName, email, createdAt, id } = useSelector(state => userInfosSelector(state))
   const profileForm = document.querySelector('.profile')
 
   // Check token to grant access or throw to /signin page
@@ -25,7 +26,8 @@ const User = () => {
     if (!token) {
       dispatch(initProfile())
       navigate('/signin')
-    } else {
+    }
+    else {
       try {
         dispatch(getUserProfile(token))
       } catch (error) {
@@ -35,6 +37,14 @@ const User = () => {
       }
     }
   }, [dispatch, navigate, token])
+
+  useEffect(() => {
+    console.log('PARAMID-', userId, 'ID-', id);
+    if (userId !== id) {
+      dispatch(initProfile())
+      navigate('/signin')
+    }
+  }, [id])
 
   /**
    * It takes the form data, and updates the user's profile
@@ -71,7 +81,8 @@ const User = () => {
   }
 
   function consultAccount(e) {
-    dispatch(getUserTransactions(token))
+    navigate('/Transactions')
+    // dispatch(getUserTransactions(token))
   }
 
   return (

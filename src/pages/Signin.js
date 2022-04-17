@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react"
 import { useNavigate, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { signinUser, setRememberMe } from "../utils/slices/userIdSlice"
-import { rememberMeSelector, statusSelector } from "../utils/selectors"
+import { signinUser, setRememberMe, getUserProfile } from "../utils/slices/userIdSlice"
+import { rememberMeSelector, statusSelector, userInfosSelector } from "../utils/selectors"
 
 
 /**
@@ -14,13 +14,14 @@ const Signin = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [formValidator, setFormValidator] = useState(false)
   const emailError = useRef(null)
   const passwordError = useRef(null)
-  const [formValidator, setFormValidator] = useState(false)
   const connected = useSelector(state => statusSelector(state) === 'connected')
   const rememberMe = useSelector(state => rememberMeSelector(state) === true)
+  const userId = useSelector(state => userInfosSelector(state).id)
 
-  // Auto-displays user email if conditions true
+  // Auto-displays user email on demand
   useEffect(() => {
     if (rememberMe &&
       localStorage.ARGENTBANK_userInfos &&
@@ -30,12 +31,28 @@ const Signin = () => {
     }
   }, [rememberMe])
 
+  // Fetch USERPROFILE if access granted
+  useEffect(() => {
+    if (connected) {
+      const token = sessionStorage.ARGENTBANK_token
+      dispatch(getUserProfile(token))
+    }
+  }, [connected])
+
+  // Navigate to USER PAGE with ID if profile fetched
+  useEffect(() => {
+    if (connected) {
+      navigate(`/user/${userId}`)
+    }
+  }, [userId])
+
   // Dispatch user's credentials to gain access to user's Page
   function logIn(e) {
     e.preventDefault()
     if (!formValidator) {
       return
     }
+    // Third arg for remeberMe
     if (e.target[2].checked) {
       dispatch(signinUser(email, password, true))
     } else {
@@ -73,10 +90,6 @@ const Signin = () => {
 
   function toggleRememberMe() {
     dispatch(setRememberMe(!rememberMe))
-  }
-
-  if (connected) {
-    setTimeout(() => navigate('/user'), 500)
   }
 
   return (
