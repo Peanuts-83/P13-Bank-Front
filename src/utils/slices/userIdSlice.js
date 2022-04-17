@@ -14,6 +14,7 @@ const initialState = {
         lastName: null,
         id: null,
         email: null,
+        createdAt: null,
     },
     transactions: {
         status: 'void',
@@ -136,15 +137,14 @@ export function getUserProfile(token) {
             return
         }
         dispatch(fetching())
-        console.log(userInfosStorage)
-        if (userInfosStorage && JSON.parse(userInfosStorage).firstName) {
+        if (userInfosStorage && JSON.parse(userInfosStorage).firstName !== undefined) {
+            // console.log('FROM STORAGE');
             const data = JSON.parse(userInfosStorage)
             console.log('DATA -', data)
             dispatch(resolvedUser(token, rememberMe, data))
             return
         }
         try {
-            // const token = tokenSelector(getState())
             const response = await axios.post(
                 'http://127.0.0.1:3001/api/v1/user/profile',
                 { request: "getUserProfile" },
@@ -274,7 +274,7 @@ const { actions, reducer } = createSlice({
                 payload: { bearerToken, rememberMe, data }
             }),
             reducer: (draft, action) => {
-                console.log('EMAIL -', action.payload);
+                console.log('RESOLVED User -', action.payload);
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
                     draft.rememberMe = action.payload.rememberMe
@@ -282,6 +282,7 @@ const { actions, reducer } = createSlice({
                     draft.infos.id = action.payload.data.id
                     draft.infos.firstName = action.payload.data.firstName
                     draft.infos.lastName = action.payload.data.lastName
+                    draft.infos.createdAt = action.payload.data.createdAt
                     localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
                     // Add token to sessionStorage on signin
                     // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
@@ -305,6 +306,7 @@ const { actions, reducer } = createSlice({
                 payload: { data }
             }),
             reducer: (draft, action) => {
+                console.log('RESOLVED Transactions -', action.payload);
                 draft.status = 'connected'
                 draft.transactions.data = action.payload.data
                 return

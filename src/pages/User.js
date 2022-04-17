@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   getUserProfile,
@@ -16,10 +16,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 const User = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const {userId} = useParams()
+  const { userId } = useParams()
   const token = sessionStorage.ARGENTBANK_token
-  let { firstName, lastName, email, createdAt, id } = useSelector(state => userInfosSelector(state))
-  const profileForm = document.querySelector('.profile')
+  const id = JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')).id
+  let { firstName, lastName, email, createdAt } = useSelector(state => userInfosSelector(state))
+  const profileForm = useRef(null)
+
 
   // Check token to grant access or throw to /signin page
   useEffect(() => {
@@ -36,7 +38,7 @@ const User = () => {
         navigate('/signin')
       }
     }
-  }, [dispatch, navigate, token])
+  }, [token])
 
   // Secure userId route
   useEffect(() => {
@@ -68,17 +70,17 @@ const User = () => {
         values[Object.keys(values)[index]] = Object.values(e.target)[index].value
       }
     })
-    setTimeout(() => dispatch(updateUserProfile(token, values)), 500)
+    dispatch(updateUserProfile(token, values))
   }
 
   function closeProfileForm() {
-    profileForm.style.top = '-100%'
-    profileForm.style.opacity = '0'
+    profileForm.current.style.top = '-100%'
+    profileForm.current.style.opacity = '0'
   }
 
   function showProfileForm() {
-    profileForm.style.top = '0'
-    profileForm.style.opacity = '1'
+    profileForm.current.style.top = '0'
+    profileForm.current.style.opacity = '1'
   }
 
   function consultAccount(e) {
@@ -123,7 +125,7 @@ const User = () => {
           <button className="transaction-button">View transactions</button>
         </div>
       </section>
-      <section className='profile'>
+      <section className='profile' ref={profileForm}>
         <button className='profile-form-close-btn' onClick={closeProfileForm}>X</button>
         <h1>Your personnal informations</h1>
         <p><em>( Account created at {createdAt} )</em></p>
