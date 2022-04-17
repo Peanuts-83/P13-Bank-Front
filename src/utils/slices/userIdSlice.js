@@ -128,6 +128,7 @@ export function createUser(fName, lName, email, password) {
  */
 export function getUserProfile(token) {
     return async (dispatch, getState) => {
+        const userInfosStorage = localStorage.getItem('ARGENTBANK_userInfos')
         const rememberMe = rememberMeSelector(getState())
         const status = statusSelector(getState())
         if (status !== 'connected' && status !== 'void') {
@@ -135,6 +136,13 @@ export function getUserProfile(token) {
             return
         }
         dispatch(fetching())
+        console.log(userInfosStorage)
+        if (userInfosStorage && JSON.parse(userInfosStorage).firstName) {
+            const data = JSON.parse(userInfosStorage)
+            console.log('DATA -', data)
+            dispatch(resolvedUser(token, rememberMe, data))
+            return
+        }
         try {
             // const token = tokenSelector(getState())
             const response = await axios.post(
@@ -143,7 +151,7 @@ export function getUserProfile(token) {
                 {
                     headers: { Authorization: token }
                 })
-            let data = await response.data.body
+            const data = await response.data.body
             dispatch(resolvedUser(token, rememberMe, data))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
@@ -245,6 +253,8 @@ const { actions, reducer } = createSlice({
             // Remove token from sessionStorage on logout
             // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
             sessionStorage.removeItem('ARGENTBANK_token')
+            const oldStorage = JSON.parse(localStorage.getItem('ARGENTBANK_userInfos'))
+            localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify({email: oldStorage.email}))
             return
         },
         remember: (draft, action) => { draft.rememberMe = action.payload }
@@ -264,6 +274,7 @@ const { actions, reducer } = createSlice({
                 payload: { bearerToken, rememberMe, data }
             }),
             reducer: (draft, action) => {
+                console.log('EMAIL -', action.payload);
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
                     draft.rememberMe = action.payload.rememberMe

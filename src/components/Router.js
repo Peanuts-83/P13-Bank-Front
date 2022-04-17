@@ -5,6 +5,7 @@ import Home from '../pages/Home';
 import Signin from '../pages/Signin';
 import Signup from '../pages/Signup.js';
 import User from '../pages/User';
+import Transactions from '../pages/Transactions';
 import Error404 from '../pages/Error404';
 
 
@@ -23,6 +24,7 @@ function Router() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/user/:userId" element={<User />} />
+        <Route path="/user/:userId/transactions" element={<Transactions />} />
         <Route path="*" element={<Error404 />} />
       </Routes>
       <Footer />

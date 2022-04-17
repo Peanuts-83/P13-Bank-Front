@@ -38,6 +38,7 @@ const User = () => {
     }
   }, [dispatch, navigate, token])
 
+  // Secure userId route
   useEffect(() => {
     console.log('PARAMID-', userId, 'ID-', id);
     if (userId !== id) {
@@ -81,7 +82,7 @@ const User = () => {
   }
 
   function consultAccount(e) {
-    navigate('/Transactions')
+    navigate(`transactions`)
     // dispatch(getUserTransactions(token))
   }
 
