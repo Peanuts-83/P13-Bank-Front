@@ -1,6 +1,11 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getUserProfile, initProfile, updateUserProfile } from '../utils/slices/userIdSlice'
+import {
+  getUserProfile,
+  initProfile,
+  updateUserProfile,
+  getUserTransactions
+} from '../utils/slices/userIdSlice'
 import { userInfosSelector } from '../utils/selectors'
 import { useNavigate } from 'react-router-dom'
 
@@ -65,6 +70,10 @@ const User = () => {
     profileForm.style.opacity = '1'
   }
 
+  function consultAccount(e) {
+    dispatch(getUserTransactions(token))
+  }
+
   return (
     <main className="main bg-dark">
       <div className="header">
@@ -79,7 +88,7 @@ const User = () => {
           <p className="account-amount-description">Available Balance</p>
         </div>
         <div className="account-content-wrapper cta">
-          <button className="transaction-button">View transactions</button>
+          <button className="transaction-button" onClick={e => consultAccount(e)}>View transactions</button>
         </div>
       </section>
       <section className="account">

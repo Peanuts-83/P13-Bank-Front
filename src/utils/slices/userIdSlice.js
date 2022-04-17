@@ -14,10 +14,16 @@ const initialState = {
         lastName: null,
         id: null,
         email: null,
+    },
+    transactions: {
+        status: 'void',
+        data: null,
+        error: null
     }
 }
 
-// Functions & Middleware Thunks to dispatch actions in user reducer
+/* ---- Functions & Middleware Thunks to dispatch actions in user reducer ---- */
+/* --------------------------------------------------------------------------- */
 
 /**
  * Manage REMEMBERME value
@@ -31,6 +37,9 @@ export function setRememberMe(value) {
         localStorage.setItem('ARGENTBANK_rememberMe', value)
     }
 }
+
+
+/* --------------- PROFILE ---------------- */
 
 /**
  * Manage LOGOUT user
@@ -47,7 +56,6 @@ export function initProfile() {
         return
     }
 }
-
 
 /**
  * Manage LOGIN user
@@ -68,7 +76,7 @@ export function signinUser(email, password, rememberMe) {
             const response = await axios.post('http://127.0.0.1:3001/api/v1/user/login', { email, password })
             const token = await response.data.body.token
             const bearerToken = `Bearer ${token}`
-            dispatch(resolved(bearerToken, rememberMe))
+            dispatch(resolvedUser(bearerToken, rememberMe))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             alert('User unknown\n Please try again...')
@@ -76,7 +84,6 @@ export function signinUser(email, password, rememberMe) {
         }
     }
 }
-
 
 /**
  * Manage CREATING new user profile
@@ -103,7 +110,7 @@ export function createUser(fName, lName, email, password) {
                 firstName: fName,
                 lastName: lName
             })
-            dispatch(resolvedCreation(response.data.body))
+            dispatch(resolvedCreationUser(response.data.body))
         } catch (error) {
             console.log('ERROR CREATING ACCOUNT -', error)
             alert('Unable to create new account. \nPlease retry later...')
@@ -111,7 +118,6 @@ export function createUser(fName, lName, email, password) {
         }
     }
 }
-
 
 /**
  * Manage FETCHING user profile
@@ -138,14 +144,13 @@ export function getUserProfile(token) {
                     headers: { Authorization: token }
                 })
             let data = await response.data.body
-            dispatch(resolved(token, rememberMe, data))
+            dispatch(resolvedUser(token, rememberMe, data))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             dispatch(rejected(error.message))
         }
     }
 }
-
 
 /**
  * Manage UPDATING user profile
@@ -175,7 +180,7 @@ export function updateUserProfile(token, values) {
                     headers: { Authorization: token }
                 })
             const data = response.data.body
-            dispatch(resolved(token, rememberMe, data))
+            dispatch(resolvedUser(token, rememberMe, data))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             dispatch(rejected(error.message))
@@ -183,8 +188,46 @@ export function updateUserProfile(token, values) {
     }
 }
 
+
+/* --------------- TRANSACTIONS ---------------- */
+
 /**
- * Reducer and Actions with Redux Toolkit createSlice()
+ * Manage FETCHING user transactions
+ * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
+ * resolved or rejected action based on the result of the API call
+ * @param {string} token - The token to access the API
+ * @returns A thunk
+ */
+export function getUserTransactions(token) {
+    console.log('FETCHING TRANSACTIONS')
+    return async (dispatch, getState) => {
+        dispatch(fetching())
+        try {
+            const response = await axios.post(
+                'http://127.0.0.1:3001/api/v1/user/transaction',
+                {},
+                {
+                    headers: { Authorization: token }
+                })
+            console.log('TRANSACTIONS -', response.data.body)
+            const data = response.data.body.map(transaction =>
+                ({ id: transaction.id,
+                    date: transaction.date,
+                    description: transaction.description,
+                    amount: transaction.amount,
+                    balance: transaction.balance }))
+            dispatch(resolvedTransactions(data))
+        } catch (error) {
+            console.log('ERROR fetching transactions -', error)
+            dispatch(rejected(error))
+        }
+    }
+}
+
+
+
+/**
+ * REDUCER and ACTIONS build with Redux Toolkit createSlice()
  * @param {string} name - Reducer's name
  * @param {object} initialState - Reducer's initial state
  * @param {object} reducers - Actions creator
@@ -195,8 +238,10 @@ const { actions, reducer } = createSlice({
     initialState,
     reducers: {
         init: (draft) => {
+            console.log(('INITIALISATION'));
             draft.status = 'void'
             draft.infos = initialState.infos
+            draft.transactions = initialState.transactions
             // Remove token from sessionStorage on logout
             // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
             sessionStorage.removeItem('ARGENTBANK_token')
@@ -214,7 +259,7 @@ const { actions, reducer } = createSlice({
                 return
             }
         },
-        resolved: {
+        resolvedUser: {
             prepare: (bearerToken, rememberMe = false, data = initialState.infos) => ({
                 payload: { bearerToken, rememberMe, data }
             }),
@@ -222,25 +267,39 @@ const { actions, reducer } = createSlice({
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
                     draft.rememberMe = action.payload.rememberMe
-                    draft.infos = action.payload.data
+                    draft.infos.email = action.payload.data.email
+                    draft.infos.id = action.payload.data.id
+                    draft.infos.firstName = action.payload.data.firstName
+                    draft.infos.lastName = action.payload.data.lastName
                     localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
                     // Add token to sessionStorage on signin
                     // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
                     sessionStorage.setItem('ARGENTBANK_token', action.payload.bearerToken)
                     if (draft.infos.firstName !== null) {
-                        localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify(action.payload.data))
+                        localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify(draft.infos))
                     }
                     return
                 }
                 return
             }
         },
-        resolvedCreation: (draft, action) => {
+        resolvedCreationUser: (draft, action) => {
             draft.status = 'void'
             console.log(`New user created \nID: ${action.payload._id} \nEMAIL: ${action.payload.email}`);
             alert('User account successfully created!')
             return
         },
+        resolvedTransactions: {
+            prepare: (data) => ({
+                payload: { data }
+            }),
+            reducer: (draft, action) => {
+                draft.status = 'connected'
+                draft.transactions.data = action.payload.data
+                return
+            }
+        }
+        ,
         rejected: {
             prepare: (error) => ({
                 payload: { error }
@@ -258,5 +317,13 @@ const { actions, reducer } = createSlice({
 })
 
 // Actions & Reducer from CreateSlice()
-const { init, remember, fetching, resolved, resolvedCreation, rejected } = actions
+const {
+    init,
+    remember,
+    fetching,
+    resolvedUser,
+    resolvedCreationUser,
+    resolvedTransactions,
+    rejected
+} = actions
 export default reducer

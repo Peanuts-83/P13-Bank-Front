@@ -91,6 +91,7 @@ const Signin = () => {
               type="text"
               id="usermail"
               onChange={e => validateForm('email', e.target.value)}
+              value={email}
             />
             <div className="error-msg" ref={emailError}>This is not a correct email</div>
           </div>

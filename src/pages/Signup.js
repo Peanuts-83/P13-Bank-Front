@@ -4,6 +4,11 @@ import { useDispatch } from 'react-redux'
 import { createUser } from '../utils/slices/userIdSlice'
 import { useNavigate } from 'react-router-dom'
 
+/**
+ * Manage SIGNUP to create new user account
+ * Component that displays the registration form
+ * @returns A React component
+ */
 const Signup = () => {
     const dispatch = useDispatch()
     const [fName, setFname] = useState()
@@ -17,16 +22,33 @@ const Signup = () => {
     const [formValidator, setFormValidator] = useState(false)
     const navigate = useNavigate()
 
-    function logIn(e) {
-        e.preventDefault()
 
+    /**
+     * The function is called when the user clicks the submit button on the signup form. It prevents
+     * the default action of the submit button, which is to refresh the page. It then checks to see if
+     * the form is valid. If it is not, the function returns. If it is, the function calls the
+     * createUser action creator, which creates a new user in the database. The function then navigates
+     * the user to the signin page
+     * @param e - the event object
+     * @returns the dispatch function createUser & navigate to '/signin' page
+     */
+    function register(e) {
+        e.preventDefault()
         if (!formValidator) {
             return
         }
         dispatch(createUser(fName, lName, email, password, true))
         navigate('/signin')
-      }
+    }
 
+    /**
+     * It takes in a type and a value, and then checks if the value is valid for that type. If it is,
+     * it sets the state for that type to the value, and if it isn't, it sets the state for that type
+     * to the value and sets the formValidator state to false
+     * @param {string} type - The type of input field. 'email' || 'password' || 'fName' || 'lName'
+     * @param {string} value - The value of the input field
+     * @returns the value of the formValidator.
+     */
     function validateForm(type, value) {
         const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
         switch (type) {
@@ -79,7 +101,7 @@ const Signup = () => {
             <section className="sign-in-content">
                 <i className="fa fa-user-circle sign-in-icon"></i>
                 <h1>Sign Up</h1>
-                <form onSubmit={e => logIn(e)}>
+                <form onSubmit={e => register(e)}>
                     <div className="input-wrapper">
                         <label htmlFor="userFname">Firstname</label>
                         <input
