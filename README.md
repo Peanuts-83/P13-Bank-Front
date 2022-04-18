@@ -1,4 +1,88 @@
-# P13-Bank-Front
+[![forthebadge](./uses-react.svg)](https://fr.reactjs.org/)
+[![forthebadge](./uses-react-router-v6.svg)](https://reactrouter.com/)
+[![forthebadge](./made-with-create-react-app.svg)](https://create-react-app.dev/)
+
+# P13 - ArgentBank - Front-end application
+
+[![Visit website](./hp_vignette.png)](./hp.png)
+[![Visit website](./swagger_vignette.png)](./Ranque_Thomas_1_swagger_phase_2_042022.yaml) - API documentation
+
+[![Project's presentation SlideShow](./pdf.png)](./Slide_P13.pdf) - SlideShow
+
+## Project's presentation
+
+Argent Bank is a newcomer to the world of online banking. The project is to quickly launch the online application allowing bank customers to connect to the services and manage their accounts.
+
+Two phases are defined to initiate the project:
+* **Phase 1** - Implement in a React application the static HTML/CSS templates provided, then set up user connections' security. It will also be necessary to retrieve basic user's informations via API.
+
+* **Phase 2** - Make API modeling proposals for the development of the project's second phase (visualization of the month's transactions, details on each transaction, and capability to modify these details). [*Swagger*](https://swagger.io/) is designed to create a .yaml file in order to proceed.
+
+&nbsp;
+
+*Two repositories are needed to enable the project to run:*
+
+
+## 1. BACK-END API
+
+You can get the API code here: <https://github.com/Peanuts-83/P13-Bank-API/tree/master>
+
+Be noticed this codebase is required in order to use all the functionalities of the front-end application. Make sure not to use the original provided codebase as it is deprecated...
+Please refer to the Readme.md documentation provided for installation and use.
+### URL/PORT
+
+The default URL used by the micro-API is <http://localhost:3001>.
+
+&nbsp;
+
+## 2. FRONT-END
+
+The present repository contains this part of the project. Any package manager such as npm or yarn is required.
+
+* You have to clone the project locally with either/or :
+
+```bash
+# HTTPS
+ git clone https://github.com/Peanuts-83/P13-Bank-Front.git
+
+
+# SSH
+git clone git@github.com:Peanuts-83/P13-Bank-Front.git
+```
+
+* Then access inside your local repository and install dependencies using :
+
+```bash
+npm install
+```
+
+* Launch the application with :
+
+```bash
+ npm start
+ ```
+
+### Use the application
+
+You can make use of the credentials below to access the application.
+It is also possible to create a new user, but consider the transactions page shall not to be filled as this is a in-course developpemnt application.
+
+Tony Stark
+
+    Email: tony@stark.com
+    Password: password123
+
+Steve Rogers
+
+    Email: steve@rogers.com,
+    Password: password456
+
+### URL/PORT
+
+The default URL used by the application is <http://localhost:3000>.
+
+&nbsp;
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

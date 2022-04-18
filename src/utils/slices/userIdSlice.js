@@ -236,7 +236,7 @@ export function getUserTransactions(token) {
  * @param {string} id - The transaction ID
  * @returns A thunk
  */
-export function getTransactionDetails(token, id) {
+ export function getTransactionDetails(token, id) {
     console.log(`FETCHING TRANSACTION n°${id}`)
     return async (dispatch) => {
         try {
@@ -249,6 +249,36 @@ export function getTransactionDetails(token, id) {
             console.log('TRANSACTIONS -', response.data.body)
             const data = response.data.body
             dispatch(resolvedTransactionDetails(data))
+        } catch (error) {
+            console.log('ERROR fetching transactions -', error)
+            dispatch(rejectedTransactionDetails(error))
+        }
+    }
+}
+
+
+/**
+ * Manage UPDATING user transaction {ID} details
+ * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
+ * resolved or rejected action based on the result of the API call
+ * @param {string} token - The token to access the API
+ * @param {string} id - The transaction ID
+ * @param {object} data - The full details data to change
+ * @returns A thunk
+ */
+ export function updateTransactionDetails(token, id, data) {
+    console.log(`FETCHING TRANSACTION n°${id}`)
+    return async (dispatch) => {
+        try {
+            const response = await axios.post(
+                `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
+                {},
+                {
+                    headers: { Authorization: token }
+                })
+            console.log('TRANSACTIONS -', response.data.body)
+            const data = response.data.body
+            // dispatch(resolvedUpdateDetails(data))
         } catch (error) {
             console.log('ERROR fetching transactions -', error)
             dispatch(rejectedTransactionDetails(error))
@@ -357,11 +387,14 @@ const { actions, reducer } = createSlice({
                 draft.transactions.status = 'resolved'
                 draft.transactions.data = action.payload.data
                 draft.transactions.data.forEach(transaction =>
-                    transaction.details = {
-                        type: null,
-                        category: null,
-                        notes: ''
-                    }
+                    transaction.details = [
+                        'TS0000-0000',
+                        {
+                            type: null,
+                            category: null,
+                            notes: ''
+                        }
+                    ]
                 )
                 return
             }
@@ -394,6 +427,10 @@ const { actions, reducer } = createSlice({
                 return
             }
         },
+        resolvedUpdateDetails: {
+            // prepare: ()
+        }
+        ,
         rejectedTransactionDetails: {
             prepare: (error) => ({
                 payload: { error }

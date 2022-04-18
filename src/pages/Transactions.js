@@ -68,7 +68,7 @@ const Transactions = () => {
             </div>
             <h2 className="sr-only">Transactions</h2>
             {!isLoading && transactions.data.map((transaction, i) => (
-                <Transaction data={transaction} token={token} key={`transaction-${i}`} />
+                <Transaction data={transaction} token={token} index={i} key={`transaction-${i}`} />
             ))}
         </main>
     )

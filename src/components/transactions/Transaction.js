@@ -1,26 +1,49 @@
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { transactionsSelector, transactionDetailSelector } from "../../utils/selectors"
+import { transactionDetailSelector } from "../../utils/selectors"
 import { getTransactionDetails } from "../../utils/slices/userIdSlice"
+import PropTypes from 'prop-types';
 
-
-const Transaction = ({ data, token }) => {
-    console.log('TRANSACTION IMPORTED')
+/**
+ * It takes in value props,in order to produce Transaction ticket component
+ * @param {object} data - Values to build the transaction ticket
+ * @param {string} token - token to access the API
+ * @param {number} index - Index number of the ticket
+ * @returns A React component.
+ */
+const Transaction = ({ data, token, index }) => {
     const dispatch = useDispatch()
     const { id, date, description, amount, balance } = data
-    const {type, category, notes} = useSelector(state => transactionsSelector(state))
+    const { type, category, notes } = useSelector(state => transactionDetailSelector(state, index))
+    const [newType, setType] = useState('-')
+    const [newCategory, setCategory] = useState('-')
+    const [newNotes, setNotes] = useState('-')
+    const [edit, setEdit] = useState(false)
+    const details = useRef(null)
 
+    // Get values from Store
     useEffect(() => {
+        setType(type)
+        setCategory(category)
+        setNotes(notes)
+    }, [type])
 
-    })
-
+    // Display details by accessing API and add 'show' className
     function displayDetails() {
-        console.log('Display DETAILS')
         dispatch(getTransactionDetails(token, id))
+        setEdit(true)
+        details.current.className = 'transaction details show'
     }
 
+    // Hide details
+    function hideDetails() {
+        setEdit(false)
+        details.current.className = 'transaction details'
+    }
+
+    // Change type from select box
     function changeType(e) {
-        console.log('CHANGE TYPE -', type, e.target.value)
+        setType(e.target.value)
     }
 
     return (
@@ -38,10 +61,11 @@ const Transaction = ({ data, token }) => {
                     </div>
                 </div>
             </div>
-            <div className='details'>
-                <div><span>Type - </span>
-                    <form>
-                        <select name={type} onChange={e => changeType(e)}>
+            <div className='transaction details' ref={details}>
+                <div><span>Type</span>
+                    <form className="details-input">
+                        <select className="type" value={newType ?? ""} onChange={e => changeType(e)}>
+                            <option value='-'>-</option>
                             <option value='Electronic'>Electronic</option>
                             <option value='Services'>Services</option>
                             <option value='Representation'>Representation</option>
@@ -50,16 +74,37 @@ const Transaction = ({ data, token }) => {
                         </select>
                     </form>
                 </div>
-                <div><span>Category - </span>Electronic</div>
-                <div><span>Notes - </span>Electronic</div>
-
+                <div><span>Category</span>
+                    <input
+                        className="details-input category"
+                        type="text"
+                        value={newCategory ?? ""}
+                        onChange={e => setCategory(e.target.value)} />
+                </div>
+                <div><span>Notes</span>
+                    <textarea
+                        className="details-input notes"
+                        rows='2'
+                        value={newNotes ?? ""}
+                        onChange={e => setNotes(e.target.value)} />
+                </div>
             </div>
             <div className="transaction account-content-wrapper cta">
                 <p className="transaction account-amount-description">{date}</p>
+                {edit ?
+                <button className="transaction-button save" onClick={hideDetails}>Save Details</button>
+                :
                 <button className="transaction-button" onClick={displayDetails}>View Details</button>
+                }
             </div>
         </section>
     )
 }
 
 export default Transaction
+
+Transaction.propTypes = {
+    data: PropTypes.objectOf(PropTypes.string, PropTypes.number),
+    token: PropTypes.string,
+    index: PropTypes.number,
+}
