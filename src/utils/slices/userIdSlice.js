@@ -208,8 +208,8 @@ export function updateUserProfile(token, values) {
  */
 export function getUserTransactions(token) {
     console.log('FETCHING TRANSACTIONS')
-    return async (dispatch, getState) => {
-        dispatch(fetching())
+    return async (dispatch) => {
+        dispatch(fetchingTransactions())
         try {
             const response = await axios.post(
                 'http://127.0.0.1:3001/api/v1/user/transaction',
@@ -218,16 +218,40 @@ export function getUserTransactions(token) {
                     headers: { Authorization: token }
                 })
             console.log('TRANSACTIONS -', response.data.body)
-            const data = response.data.body.map(transaction =>
-                ({ id: transaction.id,
-                    date: transaction.date,
-                    description: transaction.description,
-                    amount: transaction.amount,
-                    balance: transaction.balance }))
+            const data = response.data.body
             dispatch(resolvedTransactions(data))
         } catch (error) {
             console.log('ERROR fetching transactions -', error)
-            dispatch(rejected(error))
+            dispatch(rejectedTransactions(error))
+        }
+    }
+}
+
+
+/**
+ * Manage FETCHING user transaction {ID} details
+ * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
+ * resolved or rejected action based on the result of the API call
+ * @param {string} token - The token to access the API
+ * @param {string} id - The transaction ID
+ * @returns A thunk
+ */
+export function getTransactionDetails(token, id) {
+    console.log(`FETCHING TRANSACTION n°${id}`)
+    return async (dispatch) => {
+        try {
+            const response = await axios.post(
+                `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
+                {},
+                {
+                    headers: { Authorization: token }
+                })
+            console.log('TRANSACTIONS -', response.data.body)
+            const data = response.data.body
+            dispatch(resolvedTransactionDetails(data))
+        } catch (error) {
+            console.log('ERROR fetching transactions -', error)
+            dispatch(rejectedTransactionDetails(error))
         }
     }
 }
@@ -254,7 +278,7 @@ const { actions, reducer } = createSlice({
             // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
             sessionStorage.removeItem('ARGENTBANK_token')
             const oldStorage = JSON.parse(localStorage.getItem('ARGENTBANK_userInfos'))
-            localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify({email: oldStorage.email}))
+            localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify({ email: oldStorage.email }))
             return
         },
         remember: (draft, action) => { draft.rememberMe = action.payload }
@@ -301,18 +325,6 @@ const { actions, reducer } = createSlice({
             alert('User account successfully created!')
             return
         },
-        resolvedTransactions: {
-            prepare: (data) => ({
-                payload: { data }
-            }),
-            reducer: (draft, action) => {
-                console.log('RESOLVED Transactions -', action.payload);
-                draft.status = 'connected'
-                draft.transactions.data = action.payload.data
-                return
-            }
-        }
-        ,
         rejected: {
             prepare: (error) => ({
                 payload: { error }
@@ -325,6 +337,71 @@ const { actions, reducer } = createSlice({
                 }
                 return
             }
+        },
+        fetchingTransactions: (draft) => {
+            draft.error = null
+            if (draft.transactions.status === 'resolved') {
+                draft.transactions.status = 'updating'
+                return
+            } else {
+                draft.transactions.status = 'pending'
+                return
+            }
+        },
+        resolvedTransactions: {
+            prepare: (data) => ({
+                payload: { data }
+            }),
+            reducer: (draft, action) => {
+                console.log('RESOLVED Transactions -', action.payload);
+                draft.transactions.status = 'resolved'
+                draft.transactions.data = action.payload.data
+                draft.transactions.data.forEach(transaction =>
+                    transaction.details = {
+                        type: null,
+                        category: null,
+                        notes: ''
+                    }
+                )
+                return
+            }
+        },
+        rejectedTransactions: {
+            prepare: (error) => ({
+                payload: { error }
+            }),
+            reducer: (draft, action) => {
+                if (draft.transactions.status === 'pending' || draft.transactions.status === 'updating') {
+                    draft.transactions.status = 'rejected'
+                    draft.transactions.error = action.payload.error
+                    return
+                }
+                return
+            }
+        },
+        resolvedTransactionDetails: {
+            prepare: (data) => ({
+                payload: { data }
+            }),
+
+            reducer: (draft, action) => {
+                const transactionIndex = Object.values(draft.transactions.data)
+                    .map((trans, index) => {
+                        return trans.id === action.payload.data[0] ? index : null
+                    })
+                    .filter(trans => trans !== null)[0]
+                draft.transactions.data[transactionIndex].details = action.payload.data
+                return
+            }
+        },
+        rejectedTransactionDetails: {
+            prepare: (error) => ({
+                payload: { error }
+            }),
+            reducer: (draft, action) => {
+                console.log('REJECTED Transaction Details -', action.payload)
+                return
+            }
         }
     }
 })
@@ -334,9 +411,13 @@ const {
     init,
     remember,
     fetching,
+    fetchingTransactions,
     resolvedUser,
     resolvedCreationUser,
     resolvedTransactions,
-    rejected
+    rejected,
+    rejectedTransactions,
+    resolvedTransactionDetails,
+    rejectedTransactionDetails,
 } = actions
 export default reducer

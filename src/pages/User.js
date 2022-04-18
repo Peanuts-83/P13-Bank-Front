@@ -84,8 +84,8 @@ const User = () => {
   }
 
   function consultAccount(e) {
+    dispatch(getUserTransactions(token))
     navigate(`transactions`)
-    // dispatch(getUserTransactions(token))
   }
 
   return (

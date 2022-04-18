@@ -60,7 +60,7 @@
     color: #fff;
 }
 
-@media (min-width: 720px) {
+@media (min-width: 920px) {
     .account {
         flex-direction: row;
     }
@@ -100,10 +100,12 @@
     color: white;
     opacity: 0;
     transition: .5s ease-out;
+    border-bottom: 3px solid #007248;
+    box-shadow: 0 10px 5px rgba(0,0,0,.4);
 
     h1 {
         font-size: 2rem;
-        color: #002b1b;
+        color: #00432b;
         margin-bottom: 0;
     }
 

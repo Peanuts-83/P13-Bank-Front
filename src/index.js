@@ -5,11 +5,11 @@ import store from './utils/store'
 import { Provider } from 'react-redux'
 
 import "./style/index.scss"
-import { faCircleUser, faSignOut } from '@fortawesome/free-solid-svg-icons'
+import { faCircleUser, faSignOut, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { library } from '@fortawesome/fontawesome-svg-core';
 
 // Global FontAwesome icons lib
-library.add(faCircleUser, faSignOut)
+library.add(faCircleUser, faSignOut, faArrowLeft)
 
 // App router with Redux store Provider
 const container = document.getElementById('root');
