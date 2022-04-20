@@ -92,9 +92,9 @@ const Transaction = ({ data, token, index }) => {
             <div className="transaction account-content-wrapper cta">
                 <p className="transaction account-amount-description">{date}</p>
                 {edit ?
-                <button className="transaction-button save" onClick={hideDetails}>Save Details</button>
-                :
-                <button className="transaction-button" onClick={displayDetails}>View Details</button>
+                    <button className="transaction-button save" onClick={hideDetails}>Save Details</button>
+                    :
+                    <button className="transaction-button" onClick={displayDetails}>View Details</button>
                 }
             </div>
         </section>
@@ -104,7 +104,13 @@ const Transaction = ({ data, token, index }) => {
 export default Transaction
 
 Transaction.propTypes = {
-    data: PropTypes.objectOf(PropTypes.string, PropTypes.number),
+    data: PropTypes.objectOf(
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+            PropTypes.array
+        ])
+    ),
     token: PropTypes.string,
     index: PropTypes.number,
 }
