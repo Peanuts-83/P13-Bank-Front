@@ -138,9 +138,7 @@ export function getUserProfile(token) {
         }
         dispatch(fetching())
         if (userInfosStorage && JSON.parse(userInfosStorage).firstName !== undefined) {
-            // console.log('FROM STORAGE');
             const data = JSON.parse(userInfosStorage)
-            console.log('DATA -', data)
             dispatch(resolvedUser(token, rememberMe, data))
             return
         }
@@ -207,7 +205,7 @@ export function updateUserProfile(token, values) {
  * @returns A thunk
  */
 export function getUserTransactions(token) {
-    console.log('FETCHING TRANSACTIONS')
+    // console.log('FETCHING TRANSACTIONS')
     return async (dispatch) => {
         dispatch(fetchingTransactions())
         try {
@@ -217,7 +215,6 @@ export function getUserTransactions(token) {
                 {
                     headers: { Authorization: token }
                 })
-            console.log('TRANSACTIONS -', response.data.body)
             const data = response.data.body
             dispatch(resolvedTransactions(data))
         } catch (error) {
@@ -237,7 +234,7 @@ export function getUserTransactions(token) {
  * @returns A thunk
  */
  export function getTransactionDetails(token, id) {
-    console.log(`FETCHING TRANSACTION n°${id}`)
+    // console.log(`FETCHING TRANSACTION n°${id}`)
     return async (dispatch) => {
         try {
             const response = await axios.post(
@@ -246,9 +243,8 @@ export function getUserTransactions(token) {
                 {
                     headers: { Authorization: token }
                 })
-            console.log('TRANSACTIONS -', response.data.body)
-            const data = response.data.body
-            dispatch(resolvedTransactionDetails(data))
+            const details = response.data.body
+            dispatch(resolvedTransactionDetails(details, id))
         } catch (error) {
             console.log('ERROR fetching transactions -', error)
             dispatch(rejectedTransactionDetails(error))
@@ -263,22 +259,21 @@ export function getUserTransactions(token) {
  * resolved or rejected action based on the result of the API call
  * @param {string} token - The token to access the API
  * @param {string} id - The transaction ID
- * @param {object} data - The full details data to change
+ * @param {object} newData - The full details data to change
  * @returns A thunk
  */
- export function updateTransactionDetails(token, id, data) {
-    console.log(`FETCHING TRANSACTION n°${id}`)
+ export function updateTransactionDetails(token, id, newData) {
+    // console.log(`UPDATING TRANSACTION n°${id}`)
     return async (dispatch) => {
         try {
-            const response = await axios.post(
+            const response = await axios.put(
                 `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
-                {},
+                { data: newData },
                 {
                     headers: { Authorization: token }
                 })
-            console.log('TRANSACTIONS -', response.data.body)
-            const data = response.data.body
-            // dispatch(resolvedUpdateDetails(data))
+            const transactions = response.data.body
+            dispatch(resolvedUpdateDetails(transactions, id))
         } catch (error) {
             console.log('ERROR fetching transactions -', error)
             dispatch(rejectedTransactionDetails(error))
@@ -413,22 +408,38 @@ const { actions, reducer } = createSlice({
             }
         },
         resolvedTransactionDetails: {
-            prepare: (data) => ({
-                payload: { data }
+            prepare: (details, id) => ({
+                payload: { details, id }
             }),
 
             reducer: (draft, action) => {
-                const transactionIndex = Object.values(draft.transactions.data)
-                    .map((trans, index) => {
-                        return trans.id === action.payload.data[0] ? index : null
-                    })
-                    .filter(trans => trans !== null)[0]
-                draft.transactions.data[transactionIndex].details = action.payload.data
+                let transactionIndex;
+                draft.transactions.data.forEach((transaction, i) => {
+                    console.log('COMPARE -', transaction.id, action.payload.id);
+                    if (transaction.id === action.payload.id) {
+                        transactionIndex =  i
+                    }
+                })
+                console.log('PAYLOAD -', transactionIndex,action.payload.id, action.payload.details);
+                draft.transactions.data[transactionIndex].details = action.payload.details
                 return
             }
         },
         resolvedUpdateDetails: {
-            // prepare: ()
+            prepare: (transactions, id) => ({
+                payload: { transactions, id }
+            }),
+            reducer: (draft, action) => {
+                let transactionIndex;
+                draft.transactions.data.forEach((transaction, i) => {
+                    if (transaction.id === action.payload.id) {
+                        transactionIndex =  i
+                    }
+                })
+
+                draft.transactions.data[transactionIndex].details = action.payload.transactions[transactionIndex].details
+                return
+            }
         }
         ,
         rejectedTransactionDetails: {
@@ -454,6 +465,7 @@ const {
     resolvedTransactions,
     rejected,
     rejectedTransactions,
+    resolvedUpdateDetails,
     resolvedTransactionDetails,
     rejectedTransactionDetails,
 } = actions

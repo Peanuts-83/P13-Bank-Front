@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { transactionDetailSelector } from "../../utils/selectors"
-import { getTransactionDetails } from "../../utils/slices/userIdSlice"
+import { getTransactionDetails, updateTransactionDetails } from "../../utils/slices/userIdSlice"
 import PropTypes from 'prop-types';
 
 /**
@@ -15,9 +15,9 @@ const Transaction = ({ data, token, index }) => {
     const dispatch = useDispatch()
     const { id, date, description, amount, balance } = data
     const { type, category, notes } = useSelector(state => transactionDetailSelector(state, index))
-    const [newType, setType] = useState('-')
-    const [newCategory, setCategory] = useState('-')
-    const [newNotes, setNotes] = useState('-')
+    const [newType, setType] = useState(type)
+    const [newCategory, setCategory] = useState(category)
+    const [newNotes, setNotes] = useState(notes)
     const [edit, setEdit] = useState(false)
     const details = useRef(null)
 
@@ -26,7 +26,7 @@ const Transaction = ({ data, token, index }) => {
         setType(type)
         setCategory(category)
         setNotes(notes)
-    }, [type])
+    }, [type, category, notes])
 
     // Display details by accessing API and add 'show' className
     function displayDetails() {
@@ -37,6 +37,8 @@ const Transaction = ({ data, token, index }) => {
 
     // Hide details
     function hideDetails() {
+        // console.log('NEW VALUES FOR DETAILS -', newType, newCategory, newNotes);
+        dispatch(updateTransactionDetails(token, id, {newType, newCategory, newNotes} ))
         setEdit(false)
         details.current.className = 'transaction details'
     }
@@ -64,7 +66,7 @@ const Transaction = ({ data, token, index }) => {
             <div className='transaction details' ref={details}>
                 <div><span>Type</span>
                     <form className="details-input">
-                        <select className="type" value={newType ?? ""} onChange={e => changeType(e)}>
+                        <select className="type" value={newType || ''} onChange={e => changeType(e)}>
                             <option value='-'>-</option>
                             <option value='Electronic'>Electronic</option>
                             <option value='Services'>Services</option>
@@ -78,14 +80,14 @@ const Transaction = ({ data, token, index }) => {
                     <input
                         className="details-input category"
                         type="text"
-                        value={newCategory ?? ""}
+                        value={newCategory  || ''}
                         onChange={e => setCategory(e.target.value)} />
                 </div>
                 <div><span>Notes</span>
                     <textarea
                         className="details-input notes"
                         rows='2'
-                        value={newNotes ?? ""}
+                        value={newNotes  || ''}
                         onChange={e => setNotes(e.target.value)} />
                 </div>
             </div>
@@ -108,7 +110,8 @@ Transaction.propTypes = {
         PropTypes.oneOfType([
             PropTypes.string,
             PropTypes.number,
-            PropTypes.array
+            PropTypes.array,
+            PropTypes.object
         ])
     ),
     token: PropTypes.string,
