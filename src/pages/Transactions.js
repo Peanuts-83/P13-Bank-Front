@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     getUserProfile,
     initProfile,
-    updateUserProfile,
     getUserTransactions
 } from '../utils/slices/userIdSlice'
 import { transactionsSelector } from '../utils/selectors'
@@ -36,17 +35,19 @@ const Transactions = () => {
                 navigate('/signin')
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token])
 
 
     // Secure userId route
     useEffect(() => {
-        console.log('PARAMID-', userId, 'ID-', id);
-        console.log('TRANSACTIONS -', transactions)
+        // console.log('PARAMID-', userId, 'ID-', id);
+        // console.log('TRANSACTIONS -', transactions)
         if (userId !== id) {
             dispatch(initProfile())
             navigate('/signin')
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id])
 
     // Wait for data to be fetched

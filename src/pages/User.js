@@ -38,15 +38,17 @@ const User = () => {
         navigate('/signin')
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
   // Secure userId route
   useEffect(() => {
-    console.log('PARAMID-', userId, 'ID-', id);
+    // console.log('PARAMID-', userId, 'ID-', id);
     if (userId !== id) {
       dispatch(initProfile())
       navigate('/signin')
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   /**

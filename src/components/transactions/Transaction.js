@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { transactionDetailSelector } from "../../utils/selectors"
-import { getTransactionDetails, updateTransactionDetails } from "../../utils/slices/userIdSlice"
+import { getTransactionDetails, deleteTransactionDetails, updateTransactionDetails } from "../../utils/slices/userIdSlice"
 import PropTypes from 'prop-types';
 
 /**
@@ -38,7 +38,7 @@ const Transaction = ({ data, token, index }) => {
     // Hide details
     function hideDetails() {
         // console.log('NEW VALUES FOR DETAILS -', newType, newCategory, newNotes);
-        dispatch(updateTransactionDetails(token, id, {newType, newCategory, newNotes} ))
+        dispatch(updateTransactionDetails(token, id, { newType, newCategory, newNotes }))
         setEdit(false)
         details.current.className = 'transaction details'
     }
@@ -46,6 +46,12 @@ const Transaction = ({ data, token, index }) => {
     // Change type from select box
     function changeType(e) {
         setType(e.target.value)
+    }
+
+    function deleteDetails() {
+        dispatch(deleteTransactionDetails(token, id))
+        setEdit(false)
+        details.current.className = 'transaction details'
     }
 
     return (
@@ -80,21 +86,24 @@ const Transaction = ({ data, token, index }) => {
                     <input
                         className="details-input category"
                         type="text"
-                        value={newCategory  || ''}
+                        value={newCategory || ''}
                         onChange={e => setCategory(e.target.value)} />
                 </div>
                 <div><span>Notes</span>
                     <textarea
                         className="details-input notes"
                         rows='2'
-                        value={newNotes  || ''}
+                        value={newNotes || ''}
                         onChange={e => setNotes(e.target.value)} />
                 </div>
             </div>
             <div className="transaction account-content-wrapper cta">
                 <p className="transaction account-amount-description">{date}</p>
                 {edit ?
-                    <button className="transaction-button save" onClick={hideDetails}>Save Details</button>
+                    (<div>
+                        <button className="transaction-button save" onClick={hideDetails}>Save Details</button>
+                        <button className="transaction-button" onClick={deleteDetails}>Delete Details</button>
+                    </div>)
                     :
                     <button className="transaction-button" onClick={displayDetails}>View Details</button>
                 }

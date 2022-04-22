@@ -209,9 +209,8 @@ export function getUserTransactions(token) {
     return async (dispatch) => {
         dispatch(fetchingTransactions())
         try {
-            const response = await axios.post(
+            const response = await axios.get(
                 'http://127.0.0.1:3001/api/v1/user/transaction',
-                {},
                 {
                     headers: { Authorization: token }
                 })
@@ -233,7 +232,7 @@ export function getUserTransactions(token) {
  * @param {string} id - The transaction ID
  * @returns A thunk
  */
- export function getTransactionDetails(token, id) {
+export function getTransactionDetails(token, id) {
     // console.log(`FETCHING TRANSACTION n°${id}`)
     return async (dispatch) => {
         try {
@@ -254,15 +253,42 @@ export function getUserTransactions(token) {
 
 
 /**
+ * Manage DELETING user transaction {ID} details
+ * It returns a thunk that dispatches an update action, then makes an API call, then dispatches a
+ * resolved or rejected action based on the result of the API call
+ * @param {string} token - The token to access the API
+ * @param {string} id - The transaction ID
+ * @returns A thunk
+ */
+export function deleteTransactionDetails(token, id) {
+    // console.log(`UPDATING TRANSACTION n°${id}`)
+    return async (dispatch) => {
+        try {
+            const response = await axios.delete(
+                `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
+                {
+                    headers: { Authorization: token }
+                })
+            const transactions = response.data.body.transactions
+            dispatch(resolvedDeleteTransaction(transactions, id))
+        } catch (error) {
+            console.log('ERROR fetching transactions -', error)
+            dispatch(rejectedTransactionDetails(error))
+        }
+    }
+}
+
+
+/**
  * Manage UPDATING user transaction {ID} details
- * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
+ * It returns a thunk that dispatches an update action, then makes an API call, then dispatches a
  * resolved or rejected action based on the result of the API call
  * @param {string} token - The token to access the API
  * @param {string} id - The transaction ID
  * @param {object} newData - The full details data to change
  * @returns A thunk
  */
- export function updateTransactionDetails(token, id, newData) {
+export function updateTransactionDetails(token, id, newData) {
     // console.log(`UPDATING TRANSACTION n°${id}`)
     return async (dispatch) => {
         try {
@@ -295,7 +321,7 @@ const { actions, reducer } = createSlice({
     initialState,
     reducers: {
         init: (draft) => {
-            console.log(('INITIALISATION'));
+            // console.log(('INITIALISATION'));
             draft.status = 'void'
             draft.infos = initialState.infos
             draft.transactions = initialState.transactions
@@ -323,7 +349,7 @@ const { actions, reducer } = createSlice({
                 payload: { bearerToken, rememberMe, data }
             }),
             reducer: (draft, action) => {
-                console.log('RESOLVED User -', action.payload);
+                // console.log('RESOLVED User -', action.payload);
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
                     draft.rememberMe = action.payload.rememberMe
@@ -378,7 +404,7 @@ const { actions, reducer } = createSlice({
                 payload: { data }
             }),
             reducer: (draft, action) => {
-                console.log('RESOLVED Transactions -', action.payload);
+                // console.log('RESOLVED Transactions -', action.payload);
                 draft.transactions.status = 'resolved'
                 draft.transactions.data = action.payload.data
                 draft.transactions.data.forEach(transaction =>
@@ -415,16 +441,28 @@ const { actions, reducer } = createSlice({
             reducer: (draft, action) => {
                 let transactionIndex;
                 draft.transactions.data.forEach((transaction, i) => {
-                    console.log('COMPARE -', transaction.id, action.payload.id);
+                    // console.log('COMPARE -', transaction.id, action.payload.id);
                     if (transaction.id === action.payload.id) {
-                        transactionIndex =  i
+                        transactionIndex = i
                     }
                 })
-                console.log('PAYLOAD -', transactionIndex,action.payload.id, action.payload.details);
+                // console.log('PAYLOAD -', transactionIndex,action.payload.id, action.payload.details);
                 draft.transactions.data[transactionIndex].details = action.payload.details
                 return
             }
         },
+        resolvedDeleteTransaction: {
+            prepare: (transactions, id) => ({
+                payload: { transactions, id }
+            }),
+            reducer: (draft, action) => {
+                const id = action.payload.id
+                draft.transactions.data = action.payload.transactions
+                console.log(`Transaction ${id}'s details successfully deleted!`)
+                return
+            }
+        }
+        ,
         resolvedUpdateDetails: {
             prepare: (transactions, id) => ({
                 payload: { transactions, id }
@@ -433,7 +471,7 @@ const { actions, reducer } = createSlice({
                 let transactionIndex;
                 draft.transactions.data.forEach((transaction, i) => {
                     if (transaction.id === action.payload.id) {
-                        transactionIndex =  i
+                        transactionIndex = i
                     }
                 })
 
@@ -463,6 +501,7 @@ const {
     resolvedUser,
     resolvedCreationUser,
     resolvedTransactions,
+    resolvedDeleteTransaction,
     rejected,
     rejectedTransactions,
     resolvedUpdateDetails,
