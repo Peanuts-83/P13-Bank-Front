@@ -5,7 +5,7 @@
 # P13 - ArgentBank - Front-end application
 
 [![Visit website](./hp_vignette.png)](./hp.png)
-[![Visit website](./swagger_vignette.png)](./Ranque_Thomas_1_swagger_phase_2_042022.yaml) - API documentation
+[![Visit website](./swagger_vignette.png)](./swagger.png) - [API documentation .yaml file](./Ranque_Thomas_1_swagger_phase_2_042022.yaml)
 
 [![Project's presentation SlideShow](./pdf.png)](./Slide_P13.pdf) - SlideShow
 
