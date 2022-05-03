@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { rememberMeSelector, statusSelector } from '../selectors'
 
-
+const API_URL = process.env.NODE_ENV === 'production' ?
+    process.env.API_URL : 'http://127.0.0.1:3001'
 
 // User initial state
 const initialState = {
@@ -74,7 +75,7 @@ export function signinUser(email, password, rememberMe) {
         }
         dispatch(fetching())
         try {
-            const response = await axios.post('http://127.0.0.1:3001/api/v1/user/login', { email, password })
+            const response = await axios.post(`${API_URL}/api/v1/user/login`, { email, password })
             const token = await response.data.body.token
             const bearerToken = `Bearer ${token}`
             dispatch(resolvedUser(bearerToken, rememberMe))
@@ -105,7 +106,7 @@ export function createUser(fName, lName, email, password) {
         }
         dispatch(fetching())
         try {
-            const response = await axios.post('http://127.0.0.1:3001/api/v1/user/signup', {
+            const response = await axios.post(`${API_URL}/api/v1/user/signup`, {
                 email: email,
                 password: password,
                 firstName: fName,
@@ -144,7 +145,7 @@ export function getUserProfile(token) {
         }
         try {
             const response = await axios.post(
-                'http://127.0.0.1:3001/api/v1/user/profile',
+                `${API_URL}/api/v1/user/profile`,
                 { request: "getUserProfile" },
                 {
                     headers: { Authorization: token }
@@ -177,7 +178,7 @@ export function updateUserProfile(token, values) {
         dispatch(fetching())
         try {
             const response = await axios.put(
-                'http://127.0.0.1:3001/api/v1/user/profile',
+                `${API_URL}/api/v1/user/profile`,
                 {
                     firstName: values.firstName,
                     lastName: values.lastName,
@@ -210,7 +211,7 @@ export function getUserTransactions(token) {
         dispatch(fetchingTransactions())
         try {
             const response = await axios.get(
-                'http://127.0.0.1:3001/api/v1/user/transaction',
+                `${API_URL}/api/v1/user/transaction`,
                 {
                     headers: { Authorization: token }
                 })
@@ -237,7 +238,7 @@ export function getTransactionDetails(token, id) {
     return async (dispatch) => {
         try {
             const response = await axios.post(
-                `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
+                "${API_URL}/api/v1/user/transaction/${id}",
                 {},
                 {
                     headers: { Authorization: token }
@@ -265,7 +266,7 @@ export function deleteTransactionDetails(token, id) {
     return async (dispatch) => {
         try {
             const response = await axios.delete(
-                `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
+                "${API_URL}/api/v1/user/transaction/${id}",
                 {
                     headers: { Authorization: token }
                 })
@@ -293,7 +294,7 @@ export function updateTransactionDetails(token, id, newData) {
     return async (dispatch) => {
         try {
             const response = await axios.put(
-                `http://127.0.0.1:3001/api/v1/user/transaction/${id}`,
+                "${API_URL}/api/v1/user/transaction/${id}",
                 { data: newData },
                 {
                     headers: { Authorization: token }
