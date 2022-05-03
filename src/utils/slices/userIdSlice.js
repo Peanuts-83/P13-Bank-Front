@@ -2,8 +2,9 @@ import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { rememberMeSelector, statusSelector } from '../selectors'
 
-const API_URL = process.env.NODE_ENV === 'production' ?
-    process.env.API_URL : 'http://127.0.0.1:3001'
+// const API_URL = process.env.NODE_ENV === 'production' ?
+//     process.env.API_URL : 'http://127.0.0.1:3001'
+const API_URL = process.env.API_URL || 'http://127.0.0.1:3001'
 
 // User initial state
 const initialState = {
