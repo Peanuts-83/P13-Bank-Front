@@ -2,9 +2,9 @@ import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { rememberMeSelector, statusSelector } from '../selectors'
 
-// const API_URL = process.env.NODE_ENV === 'production' ?
-//     process.env.API_URL : 'http://127.0.0.1:3001'
-const API_URL = process.env.API_URL || 'http://127.0.0.1:3001'
+const API_URL = process.env.NODE_ENV === 'production' ?
+    '' : 'http://127.0.0.1:3001'
+// const API_URL = process.env.API_URL || 'http://127.0.0.1:3001'
 
 // User initial state
 const initialState = {
@@ -239,7 +239,7 @@ export function getTransactionDetails(token, id) {
     return async (dispatch) => {
         try {
             const response = await axios.post(
-                "${API_URL}/api/v1/user/transaction/${id}",
+                `${API_URL}/api/v1/user/transaction/${id}`,
                 {},
                 {
                     headers: { Authorization: token }
@@ -267,7 +267,7 @@ export function deleteTransactionDetails(token, id) {
     return async (dispatch) => {
         try {
             const response = await axios.delete(
-                "${API_URL}/api/v1/user/transaction/${id}",
+                `${API_URL}/api/v1/user/transaction/${id}`,
                 {
                     headers: { Authorization: token }
                 })
@@ -295,7 +295,7 @@ export function updateTransactionDetails(token, id, newData) {
     return async (dispatch) => {
         try {
             const response = await axios.put(
-                "${API_URL}/api/v1/user/transaction/${id}",
+                `${API_URL}/api/v1/user/transaction/${id}`,
                 { data: newData },
                 {
                     headers: { Authorization: token }
