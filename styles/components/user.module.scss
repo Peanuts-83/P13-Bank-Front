@@ -13,29 +13,29 @@
     margin-bottom: 2rem;
 }
 
-.account-amount {
+.accountAmount {
     margin: 0;
     font-size: 2.5rem;
     font-weight: bold;
 }
 
-.account-amount-description {
+.accountAmount-description {
     margin: 0;
 }
 
-.account-title {
+.accountTitle {
     margin: 0;
     padding: 0;
     font-size: 1rem;
     font-weight: normal;
 }
 
-.account-content-wrapper {
+.accountContentWrapper {
     width: 100%;
     flex: 1;
 }
 
-.edit-button {
+.editButton {
     border-color: #00bc77;
     background-color: #00bc77;
     color: #fff;
@@ -48,13 +48,14 @@
     margin-bottom: 2rem;
 }
 
-.transaction-button {
+.transactionButton {
     display: block;
     width: 100%;
     padding: 8px;
     font-size: 1.1rem;
     font-weight: bold;
     margin-top: 1rem;
+    margin-left: auto;
     border-color: #00bc77;
     background-color: #00bc77;
     color: #fff;
@@ -65,23 +66,23 @@
         flex-direction: row;
     }
 
-    .account-content-wrapper.cta {
+    .accountContentWrapper .cta {
         flex: 0;
     }
 
-    .transaction-button {
+    .transactionButton {
         width: 200px;
     }
 }
 
 
-.error-text {
+.errorText {
     margin-top: 10%;
     font-size: 3vw;
     font-weight: 600;
 }
 
-.error-image {
+.errorImage {
     width: 60%;
     max-width: 840px;
 }
@@ -118,14 +119,14 @@
         margin-top: 15px;
     }
 
-    .profile-wrapper {
+    .profileWrapper {
         width: 300px;
     }
 
-    .profile-form-save-btn,
-    .profile-form-close-btn {
+    .profileFormSaveBtn,
+    .profileFormCloseBtn {
         display: block;
-        // width: 100%;
+        width: 100%;
         padding: 8px;
         font-size: 1.1rem;
         font-weight: bold;
@@ -136,10 +137,11 @@
         cursor: pointer;
     }
 
-    .profile-form-close-btn {
+    .profileFormCloseBtn {
         position: absolute;
         top: 0;
         right: 0;
         margin-right: 1.7rem;
+        width: auto;
     }
 }
