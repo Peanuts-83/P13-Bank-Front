@@ -7,7 +7,12 @@ import Feature from '../components/home/Feature'
 import Layout from '../components/Layout';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux'
-import { initProfile } from '../store/slices/userIdSlice'
+import {
+    initProfile,
+    fetching,
+    setRememberMe,
+    resolvedUser
+} from '../store/slices/userIdSlice'
 
 /**
  * It renders Homepage
@@ -18,7 +23,15 @@ export default function Home() {
 
     // Initiate user profile
     useEffect(() => {
-        dispatch(initProfile())
+        if (localStorage.getItem('ARGENTBANK_rememberMe' == true)) {
+            if (localStorage.getItem('ARGENTBANK_userInfos')) {
+                // dispatch(setRememberMe())
+                dispatch(fetching())
+                dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
+            }
+        } else {
+            dispatch(initProfile())
+        }
     })
 
     const features = [

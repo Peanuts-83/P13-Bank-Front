@@ -2,9 +2,11 @@ import { useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
   fetching,
+  setRememberMe,
   updateUserProfile,
   getUserTransactions,
-  resolvedUser
+  resolvedUser,
+  remember
 } from 'store/slices/userIdSlice'
 import { userInfosSelector } from 'store/selectors'
 import { useRouter } from 'next/router'
@@ -22,19 +24,20 @@ const User = () => {
   const dispatch = useDispatch()
   const router = useRouter()
   const userId = useSelector(state => userInfosSelector(state).id)
-  let { firstName, lastName, email, createdAt, token } = useSelector(state => userInfosSelector(state))
+  let { firstName, lastName, email, createdAt, id, token } = useSelector(state => userInfosSelector(state)) || localStorage.getItem('ARGENTBANK_userInfos')
   const profileForm = useRef(null)
 
   useEffect(() => {
     if (userService.userValue !== null) {
       console.log('userService.userValue not null! userId ===', userId);
       if (userId === null && localStorage.getItem('ARGENTBANK_userInfos')) {
-        console.log('userId is null!', JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe')));
+        console.log('userId is null!', JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')))
+        dispatch(setRememberMe(JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe')), email))
         dispatch(fetching())
-        dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
+        dispatch(resolvedUser({ firstName, lastName, email, createdAt, id, token }))
       }
     }
-  })
+  }, [userId])
 
   /**
    * It takes the form data, and updates the user's profile

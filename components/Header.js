@@ -11,8 +11,8 @@ import { userService } from 'services'
 
 /**
  * It returns a header with a logo, a link to the home page, and a link to the signin page if the user
- * is not connected, and a link to the home page and a link to sign out if the user is connected
- * @returns A header with a logo and a link to the signin page.
+ * is not connected, or a link to the home page and a link to sign out if the user is connected
+ * @returns A header with a logo and a link to the signin page / signout index.
  */
 const Header = () => {
   const connected = useSelector(state => state.user.status === 'connected')

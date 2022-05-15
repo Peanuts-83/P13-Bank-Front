@@ -30,13 +30,13 @@ export const initialState = {
 /**
  * Manage REMEMBERME value
  * It takes a value, dispatches an action to the store, and then saves the value to local storage for persistent information
- * @param {boolean} value - The value to be set.
+ * @param {boolean} rememberMe - The value to be set.
+ * @param {string} email - The email to record.
  * @returns A function that takes a dispatch function as an argument.
  */
-export function setRememberMe(value) {
+export function setRememberMe(rememberMe, email) {
     return (dispatch) => {
-        dispatch(remember(value))
-        localStorage.setItem('ARGENTBANK_rememberMe', value)
+        dispatch(remember(rememberMe, email))
     }
 }
 
@@ -53,8 +53,9 @@ export function initProfile() {
         const status = statusSelector(getState())
         if (status === 'connected') {
             console.log('DISCONNECTING - Empty User Credentials')
-            dispatch(init())
         }
+        dispatch(init())
+        // dispatch(setRememberMe(false, ''))
         return
     }
 }
@@ -319,13 +320,27 @@ const { actions, reducer } = createSlice({
     initialState,
     reducers: {
         init: (draft) => {
+            console.log('ACTION init -', draft.rememberMe);
             draft.status = 'void'
             draft.infos = initialState.infos
             draft.transactions = initialState.transactions
+            // localStorage.setItem('ARGENTBANK_rememberMe', draft.rememberMe)
             return
         },
-        remember: (draft, action) => { draft.rememberMe = action.payload }
-        ,
+        remember: {
+            prepare: (rememberMe, email) => ({
+                payload: { rememberMe, email }
+            }),
+            reducer: (draft, action) => {
+                console.log('ACTION remember -', action.payload.rememberMe);
+                draft.rememberMe = action.payload.rememberMe
+                draft.infos.email = action.payload.email
+                localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
+                // if (action.payload.rememberMe === true) {
+                //     localStorage.setItem('ARGENTBANK_email', action.payload.email)
+                // }
+            }
+        },
         fetching: (draft) => {
             draft.error = null
             if (draft.status === 'resolved') {
@@ -337,7 +352,7 @@ const { actions, reducer } = createSlice({
             }
         },
         resolvedUser: {
-            prepare: (user, rememberMe = false) => ({
+            prepare: (user, rememberMe) => ({
                 payload: { user, rememberMe }
             }),
             reducer: (draft, action) => {
@@ -351,133 +366,133 @@ const { actions, reducer } = createSlice({
                     draft.infos.lastName = action.payload.user.lastName
                     draft.infos.createdAt = action.payload.user.createdAt
                     draft.infos.token = action.payload.user.token
-                    localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
-                // }
+                    // localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
+                    // }
+                    return
+                }
                 return
             }
+        },
+        resolvedCreationUser: (draft, action) => {
+            draft.status = 'void'
+            console.log(`New user created \nID: ${action.payload._id} \nEMAIL: ${action.payload.email}`);
+            alert('User account successfully created!')
             return
-        }
-    },
-    resolvedCreationUser: (draft, action) => {
-        draft.status = 'void'
-        console.log(`New user created \nID: ${action.payload._id} \nEMAIL: ${action.payload.email}`);
-        alert('User account successfully created!')
-        return
-    },
-    rejected: {
-        prepare: (error) => ({
-            payload: { error }
-        }),
-        reducer: (draft, action) => {
-            if (draft.status === 'pending' || draft.status === 'updating') {
-                draft.status = 'rejected'
-                draft.error = action.payload.error
+        },
+        rejected: {
+            prepare: (error) => ({
+                payload: { error }
+            }),
+            reducer: (draft, action) => {
+                if (draft.status === 'pending' || draft.status === 'updating') {
+                    draft.status = 'rejected'
+                    draft.error = action.payload.error
+                    return
+                }
                 return
             }
-            return
-        }
-    },
-    fetchingTransactions: (draft) => {
-        draft.error = null
-        if (draft.transactions.status === 'resolved') {
-            draft.transactions.status = 'updating'
-            return
-        } else {
-            draft.transactions.status = 'pending'
-            return
-        }
-    },
-    resolvedTransactions: {
-        prepare: (data) => ({
-            payload: { data }
-        }),
-        reducer: (draft, action) => {
-            // console.log('RESOLVED Transactions -', action.payload);
-            draft.transactions.status = 'resolved'
-            draft.transactions.data = action.payload.data
-            draft.transactions.data.forEach(transaction =>
-                transaction.details = [
-                    'TS0000-0000',
-                    {
-                        type: null,
-                        category: null,
-                        notes: ''
+        },
+        fetchingTransactions: (draft) => {
+            draft.error = null
+            if (draft.transactions.status === 'resolved') {
+                draft.transactions.status = 'updating'
+                return
+            } else {
+                draft.transactions.status = 'pending'
+                return
+            }
+        },
+        resolvedTransactions: {
+            prepare: (data) => ({
+                payload: { data }
+            }),
+            reducer: (draft, action) => {
+                // console.log('RESOLVED Transactions -', action.payload);
+                draft.transactions.status = 'resolved'
+                draft.transactions.data = action.payload.data
+                draft.transactions.data.forEach(transaction =>
+                    transaction.details = [
+                        'TS0000-0000',
+                        {
+                            type: null,
+                            category: null,
+                            notes: ''
+                        }
+                    ]
+                )
+                return
+            }
+        },
+        rejectedTransactions: {
+            prepare: (error) => ({
+                payload: { error }
+            }),
+            reducer: (draft, action) => {
+                if (draft.transactions.status === 'pending' || draft.transactions.status === 'updating') {
+                    draft.transactions.status = 'rejected'
+                    draft.transactions.error = action.payload.error
+                    return
+                }
+                return
+            }
+        },
+        resolvedTransactionDetails: {
+            prepare: (details, id) => ({
+                payload: { details, id }
+            }),
+
+            reducer: (draft, action) => {
+                let transactionIndex;
+                draft.transactions.data.forEach((transaction, i) => {
+                    // console.log('COMPARE -', transaction.id, action.payload.id);
+                    if (transaction.id === action.payload.id) {
+                        transactionIndex = i
                     }
-                ]
-            )
-            return
-        }
-    },
-    rejectedTransactions: {
-        prepare: (error) => ({
-            payload: { error }
-        }),
-        reducer: (draft, action) => {
-            if (draft.transactions.status === 'pending' || draft.transactions.status === 'updating') {
-                draft.transactions.status = 'rejected'
-                draft.transactions.error = action.payload.error
+                })
+                // console.log('PAYLOAD -', transactionIndex,action.payload.id, action.payload.details);
+                draft.transactions.data[transactionIndex].details = action.payload.details
                 return
             }
-            return
+        },
+        resolvedDeleteTransaction: {
+            prepare: (transactions, id) => ({
+                payload: { transactions, id }
+            }),
+            reducer: (draft, action) => {
+                const id = action.payload.id
+                draft.transactions.data = action.payload.transactions
+                console.log(`Transaction ${id}'s details successfully deleted!`)
+                return
+            }
         }
-    },
-    resolvedTransactionDetails: {
-        prepare: (details, id) => ({
-            payload: { details, id }
-        }),
+        ,
+        resolvedUpdateDetails: {
+            prepare: (transactions, id) => ({
+                payload: { transactions, id }
+            }),
+            reducer: (draft, action) => {
+                let transactionIndex;
+                draft.transactions.data.forEach((transaction, i) => {
+                    if (transaction.id === action.payload.id) {
+                        transactionIndex = i
+                    }
+                })
 
-        reducer: (draft, action) => {
-            let transactionIndex;
-            draft.transactions.data.forEach((transaction, i) => {
-                // console.log('COMPARE -', transaction.id, action.payload.id);
-                if (transaction.id === action.payload.id) {
-                    transactionIndex = i
-                }
-            })
-            // console.log('PAYLOAD -', transactionIndex,action.payload.id, action.payload.details);
-            draft.transactions.data[transactionIndex].details = action.payload.details
-            return
+                draft.transactions.data[transactionIndex].details = action.payload.transactions[transactionIndex].details
+                return
+            }
         }
-    },
-    resolvedDeleteTransaction: {
-        prepare: (transactions, id) => ({
-            payload: { transactions, id }
-        }),
-        reducer: (draft, action) => {
-            const id = action.payload.id
-            draft.transactions.data = action.payload.transactions
-            console.log(`Transaction ${id}'s details successfully deleted!`)
-            return
+        ,
+        rejectedTransactionDetails: {
+            prepare: (error) => ({
+                payload: { error }
+            }),
+            reducer: (draft, action) => {
+                console.log('REJECTED Transaction Details -', action.payload)
+                return
+            }
         }
     }
-    ,
-    resolvedUpdateDetails: {
-        prepare: (transactions, id) => ({
-            payload: { transactions, id }
-        }),
-        reducer: (draft, action) => {
-            let transactionIndex;
-            draft.transactions.data.forEach((transaction, i) => {
-                if (transaction.id === action.payload.id) {
-                    transactionIndex = i
-                }
-            })
-
-            draft.transactions.data[transactionIndex].details = action.payload.transactions[transactionIndex].details
-            return
-        }
-    }
-    ,
-    rejectedTransactionDetails: {
-        prepare: (error) => ({
-            payload: { error }
-        }),
-        reducer: (draft, action) => {
-            console.log('REJECTED Transaction Details -', action.payload)
-            return
-        }
-    }
-}
 })
 
 // Actions & Reducer from CreateSlice()

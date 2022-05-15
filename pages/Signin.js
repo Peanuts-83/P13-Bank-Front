@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { useRouter } from "next/router"
 import { useDispatch, useSelector } from 'react-redux'
 import { initProfile } from '../store/slices/userIdSlice'
-import { signinUser, setRememberMe, getUserProfile, resolvedUser } from "../store/slices/userIdSlice"
-import { rememberMeSelector, statusSelector, userInfosSelector } from "../store/selectors"
-import Layout from '../components/Layout';
-import style from '../styles/components/index.module.scss'
+import { signinUser, setRememberMe, getUserProfile, resolvedUser } from "store/slices/userIdSlice"
+import { rememberMeSelector, statusSelector, userInfosSelector } from "store/selectors"
+import Layout from 'components/Layout';
+import style from 'styles/components/index.module.scss'
 import { userService } from "services"
 
 /**
@@ -22,59 +22,54 @@ const Signin = () => {
   const [formValidator, setFormValidator] = useState(false)
   const emailError = useRef(null)
   const passwordError = useRef(null)
-  const connected = useSelector(state => statusSelector(state) === 'connected')
-  const rememberMe = useSelector(state => rememberMeSelector(state) === true)
+  const [rememberMe, setRemember] = useState(useSelector(state => rememberMeSelector(state)) || null)
   const userId = useSelector(state => userInfosSelector(state).id)
 
-  // Initiate user profile
+  // Initiate user profile & set rememberMe value to store from localStorage on refresh
   useEffect(() => {
     dispatch(initProfile())
+    if (rememberMe === null) {
+      setRemember(localStorage.getItem('ARGENTBANK_rememberMe') === 'true')
+    }
   }, [])
 
-  // redirect to User if already logged in
-  // useEffect(() => {
-  //   if (userService.userValue !== null) {
-  //     console.log('userService.userValue not null!');
-  //     if (userId === null) {
-  //       console.log('userId is null!');
-  //       dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
-  //     }
-  //     router.push('/User')
-  //   }
-  // }, [userService.userValue])
+  // Set rememberMe value to store
+  useEffect(() => {
+    dispatch(setRememberMe(rememberMe, email))
+  }, [rememberMe])
 
   // Auto-displays user email on demand
   useEffect(() => {
     if (rememberMe &&
-      localStorage.ARGENTBANK_userInfos &&
-      localStorage.ARGENTBANK_userInfos.email !== null) {
-      setEmail(JSON.parse(localStorage.ARGENTBANK_userInfos).email)
+      localStorage.ARGENTBANK_email !== "") {
+      setEmail(localStorage.ARGENTBANK_email)
       document.querySelector('#remember-me').setAttribute('checked', true)
     }
   }, [rememberMe])
 
-  // Fetch USERPROFILE if access granted
-  // useEffect(() => {
-  //   if (connected) {
-  //     const token = sessionStorage.ARGENTBANK_token
-  //     dispatch(getUserProfile(token))
-  //   }
-  // }, [connected])
+  // Save email if rememberMe is checked
+  useEffect(() => {
+    const savedMail = localStorage.getItem('ARGENTBANK_email')
+    if (rememberMe) {
+      if (email === "" && savedMail) {
+        setEmail(savedMail)
+      }
+      localStorage.setItem('ARGENTBANK_email', email)
+    }
+  }, [email])
 
-  // Navigate to USER PAGE with ID if profile fetched
-  // useEffect(() => {
-  //   if (connected) {
-  //     router.push(`/user/${userId}`)
-  //   }
-  // }, [userId])
+  // Toggle rememberMe value on check input
+  function toggleRememberMe() {
+    console.log('TOGGLE', !rememberMe, email);
+    setRemember(!rememberMe)
+  }
 
-  // Dispatch user's credentials to gain access to user's Page
+  // Dispatch user's credentials to Store
   async function logIn(e) {
     e.preventDefault()
     if (!formValidator) {
       return
     }
-
     return userService.login(email, password)
       .then((user) => {
         const returnUrl = router.query.returnUrl || '/User';
@@ -106,9 +101,9 @@ const Signin = () => {
           emailError.current.className = style.errorMsg
         }
         break
-      default:
-        setPassword(value)
-        if (value.length < 6) {
+        default:
+          setPassword(value)
+          if (value.length < 6) {
           passwordError.current.className = `${style.errorMsg} ${style.errorShow}`
           setFormValidator(false)
           return
@@ -120,9 +115,6 @@ const Signin = () => {
     setFormValidator(true)
   }
 
-  function toggleRememberMe() {
-    dispatch(setRememberMe(!rememberMe))
-  }
 
   return (
     <Layout>
@@ -151,7 +143,7 @@ const Signin = () => {
               <div className={style.errorMsg} ref={passwordError}>Password should be at least 6 characters long</div>
             </div>
             <div className={style.inputRemember}>
-              <input type="checkbox" id="remember-me" onClick={toggleRememberMe} />
+              <input type="checkbox" id="remember-me" onClick={toggleRememberMe} defaultChecked={rememberMe === true} />
               <label htmlFor="remember-me">Remember me</label>
             </div>
             <input className={style.signInButton} type="submit" value="Sign In" />
