@@ -26,20 +26,22 @@ const Signin = () => {
   const rememberMe = useSelector(state => rememberMeSelector(state) === true)
   const userId = useSelector(state => userInfosSelector(state).id)
 
-    // Initiate user profile
-    useEffect(() => {
-        dispatch(initProfile())
-    }, [])
+  // Initiate user profile
+  useEffect(() => {
+    dispatch(initProfile())
+  }, [])
 
   // redirect to User if already logged in
-  useEffect(() => {
-    if (userService.userValue !== null) {
-      if (userId === null) {
-        dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
-      }
-      router.push('/User')
-    }
-  }, [userService.userValue])
+  // useEffect(() => {
+  //   if (userService.userValue !== null) {
+  //     console.log('userService.userValue not null!');
+  //     if (userId === null) {
+  //       console.log('userId is null!');
+  //       dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
+  //     }
+  //     router.push('/User')
+  //   }
+  // }, [userService.userValue])
 
   // Auto-displays user email on demand
   useEffect(() => {
@@ -67,7 +69,7 @@ const Signin = () => {
   // }, [userId])
 
   // Dispatch user's credentials to gain access to user's Page
-  function logIn(e) {
+  async function logIn(e) {
     e.preventDefault()
     if (!formValidator) {
       return

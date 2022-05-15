@@ -32,7 +32,7 @@ const Header = () => {
             Sign Out</a>
       ) : (
         <Link href="/Signin">
-          <a className={style.mainNavItem}><FontAwesomeIcon className={`${style.fa} fa-circle-user`} icon="circle-user" />
+          <a className={style.mainNavItem}><FontAwesomeIcon className={`${style.fa} fa fa-circle-user`} icon="circle-user" />
             Sign In</a>
         </Link>
       )}

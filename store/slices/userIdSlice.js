@@ -63,8 +63,7 @@ export function initProfile() {
  * Manage LOGIN user
  * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
  * resolved or rejected action based on the result of the API call
- * @param {string} email - The email address of the user
- * @param {string} password - The password of the user
+ * @param {object} user - User's fisrtName,lastName, email, token, id & createdAt
  * @param {boolean} rememberMe
  * @returns A thunk
  */
@@ -320,15 +319,9 @@ const { actions, reducer } = createSlice({
     initialState,
     reducers: {
         init: (draft) => {
-            // console.log(('INITIALISATION'));
             draft.status = 'void'
             draft.infos = initialState.infos
             draft.transactions = initialState.transactions
-            // Remove token from sessionStorage on logout
-            // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
-            // sessionStorage.removeItem('ARGENTBANK_token')
-            // const oldStorage = JSON.parse(localStorage.getItem('ARGENTBANK_userInfos'))
-            // localStorage.setItem('ARGENTBANK_userInfos', JSON.stringify({ email: oldStorage.email }))
             return
         },
         remember: (draft, action) => { draft.rememberMe = action.payload }
@@ -348,7 +341,7 @@ const { actions, reducer } = createSlice({
                 payload: { user, rememberMe }
             }),
             reducer: (draft, action) => {
-                console.log('RESOLVED User -', action.payload.user);
+                console.log('RESOLVED User -', action.payload.user.email);
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
                     draft.rememberMe = action.payload.rememberMe
@@ -359,13 +352,6 @@ const { actions, reducer } = createSlice({
                     draft.infos.createdAt = action.payload.user.createdAt
                     draft.infos.token = action.payload.user.token
                     localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
-                    // useStorage('localStorage', 'ARGENTBANK_rememberMe', action.payload.rememberMe)
-                    // Add token to sessionStorage on signin
-                    // Token should be managed by a cookie with 'HTMLOnly' parameter served from API
-                    // sessionStorage.setItem('ARGENTBANK_token', action.payload.bearerToken)
-                    // useStorage('sessionStorage', 'ARGENTBANK_token', action.payload.res.token)
-                    // if (draft.infos.firstName !== null) {
-                    //     useStorage('localStorage', 'ARGENTBANK_userInfos', JSON.stringify(draft.infos))
                 // }
                 return
             }

@@ -1,9 +1,14 @@
-import '../styles/globals.scss'
-import store from '../store/store'
-import { Provider } from 'react-redux'
+import 'styles/globals.scss'
+import { faCircleUser, faSignOut, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core';
+// Global FontAwesome icons lib
+library.add(faCircleUser, faSignOut, faArrowLeft)
+import store from 'store/store'
+import { Provider, useSelector, useDispatch } from 'react-redux'
+import { resolvedUser } from 'store/slices/userIdSlice'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { userService } from '../services/user.service'
+import { userService } from 'services/user.service'
 // import { initProfile } from '../store/slices/userIdSlice'
 // import { useDispatch } from 'react-redux'
 
@@ -27,7 +32,7 @@ export default function MyApp({ Component, pageProps }) {
         router.events.off('routeChangeStart', hideContent);
         router.events.off('routeChangeComplete', authCheck);
     }
-  })
+  }, [])
 
   function authCheck(url) {
     const publicPaths = ['/', '/Signin', '/Signup']
@@ -35,7 +40,7 @@ export default function MyApp({ Component, pageProps }) {
     console.log('PATH -', path);
     if (!userService.userValue && !publicPaths.includes(path)) {
       setAuthorized(false)
-      router.push({
+      router.replace({
         pathname: '/',
         query: { returnUrl: router.asPath }
       })
@@ -43,6 +48,7 @@ export default function MyApp({ Component, pageProps }) {
       setAuthorized(true)
     }
   }
+
 
 
   return (

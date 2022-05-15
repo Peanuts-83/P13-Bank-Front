@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
-  getUserProfile,
-  initProfile,
+  fetching,
   updateUserProfile,
-  getUserTransactions
+  getUserTransactions,
+  resolvedUser
 } from 'store/slices/userIdSlice'
 import { userInfosSelector } from 'store/selectors'
 import { useRouter } from 'next/router'
@@ -12,6 +12,7 @@ import useStorage from 'hooks/useStorage'
 import Layout from 'components/Layout'
 import style from 'styles/components/user.module.scss'
 import mainStyle from 'styles/components/index.module.scss'
+import { userService } from "services"
 
 /**
  * It displays user Page & takes the profile form data, and updates the user's profile
@@ -20,40 +21,20 @@ import mainStyle from 'styles/components/index.module.scss'
 const User = () => {
   const dispatch = useDispatch()
   const router = useRouter()
-  const { userId } = router.query
-  // const token = useSelector(state => userInfosSelector(token))
-  // const id = JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')).id
+  const userId = useSelector(state => userInfosSelector(state).id)
   let { firstName, lastName, email, createdAt, token } = useSelector(state => userInfosSelector(state))
   const profileForm = useRef(null)
 
-
-  // Check token to grant access or throw to /signin page
-  // useEffect(() => {
-  //   if (!token) {
-  //     dispatch(initProfile())
-  //     router.replace('/Signin')
-  //   }
-  //   else {
-  //     try {
-  //       dispatch(getUserProfile(token))
-  //     } catch (error) {
-  //       console.log('ERROR GETTING USER DATA -', error)
-  //       dispatch(initProfile())
-  //       router.replace('/Signin')
-  //     }
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [token])
-
-  // Secure userId route
-  // useEffect(() => {
-  //   // console.log('PARAMID-', userId, 'ID-', id);
-  //   if (userId !== id) {
-  //     dispatch(initProfile())
-  //     router.replace('/Signin')
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [id])
+  useEffect(() => {
+    if (userService.userValue !== null) {
+      console.log('userService.userValue not null! userId ===', userId);
+      if (userId === null && localStorage.getItem('ARGENTBANK_userInfos')) {
+        console.log('userId is null!', JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe')));
+        dispatch(fetching())
+        dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
+      }
+    }
+  })
 
   /**
    * It takes the form data, and updates the user's profile

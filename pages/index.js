@@ -1,7 +1,7 @@
-import { faCircleUser, faSignOut, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { library } from '@fortawesome/fontawesome-svg-core';
-// Global FontAwesome icons lib
-library.add(faCircleUser, faSignOut, faArrowLeft)
+// import { faCircleUser, faSignOut, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+// import { library } from '@fortawesome/fontawesome-svg-core';
+// // Global FontAwesome icons lib
+// library.add(faCircleUser, faSignOut, faArrowLeft)
 import style from '../styles/components/index.module.scss'
 import Feature from '../components/home/Feature'
 import Layout from '../components/Layout';
