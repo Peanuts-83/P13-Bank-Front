@@ -31,12 +31,11 @@ export const initialState = {
  * Manage REMEMBERME value
  * It takes a value, dispatches an action to the store, and then saves the value to local storage for persistent information
  * @param {boolean} rememberMe - The value to be set.
- * @param {string} email - The email to record.
  * @returns A function that takes a dispatch function as an argument.
  */
-export function setRememberMe(rememberMe, email) {
+export function setRememberMe(rememberMe) {
     return (dispatch) => {
-        dispatch(remember(rememberMe, email))
+        dispatch(remember(rememberMe))
     }
 }
 
@@ -68,15 +67,11 @@ export function initProfile() {
  * @param {boolean} rememberMe
  * @returns A thunk
  */
-export function signinUser(user, rememberMe) {
+export function signinUser(user) {
     return async (dispatch, getState) => {
-        if (!rememberMe) {
-            rememberMe = rememberMeSelector(getState())
-        }
         dispatch(fetching())
         try {
-            console.log('USER -', user);
-            dispatch(resolvedUser(user, rememberMe))
+            dispatch(resolvedUser(user))
         } catch (error) {
             console.log('ERROR CONNECTING -', error)
             alert('User unknown\n Please try again...')
@@ -320,26 +315,13 @@ const { actions, reducer } = createSlice({
     initialState,
     reducers: {
         init: (draft) => {
-            console.log('ACTION init -', draft.rememberMe);
             draft.status = 'void'
             draft.infos = initialState.infos
             draft.transactions = initialState.transactions
-            // localStorage.setItem('ARGENTBANK_rememberMe', draft.rememberMe)
             return
         },
-        remember: {
-            prepare: (rememberMe, email) => ({
-                payload: { rememberMe, email }
-            }),
-            reducer: (draft, action) => {
-                console.log('ACTION remember -', action.payload.rememberMe);
-                draft.rememberMe = action.payload.rememberMe
-                draft.infos.email = action.payload.email
-                localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
-                // if (action.payload.rememberMe === true) {
-                //     localStorage.setItem('ARGENTBANK_email', action.payload.email)
-                // }
-            }
+        remember: (draft, action) => {
+                draft.rememberMe = action.payload
         },
         fetching: (draft) => {
             draft.error = null
@@ -351,27 +333,19 @@ const { actions, reducer } = createSlice({
                 return
             }
         },
-        resolvedUser: {
-            prepare: (user, rememberMe) => ({
-                payload: { user, rememberMe }
-            }),
-            reducer: (draft, action) => {
-                console.log('RESOLVED User -', action.payload.user.email);
+        resolvedUser: (draft, action) => {
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
-                    draft.rememberMe = action.payload.rememberMe
                     draft.infos.email = action.payload.user.email
                     draft.infos.id = action.payload.user.id
                     draft.infos.firstName = action.payload.user.firstName
                     draft.infos.lastName = action.payload.user.lastName
                     draft.infos.createdAt = action.payload.user.createdAt
                     draft.infos.token = action.payload.user.token
-                    // localStorage.setItem('ARGENTBANK_rememberMe', action.payload.rememberMe)
-                    // }
                     return
                 }
                 return
-            }
+
         },
         resolvedCreationUser: (draft, action) => {
             draft.status = 'void'

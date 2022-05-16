@@ -22,28 +22,31 @@ const Signin = () => {
   const [formValidator, setFormValidator] = useState(false)
   const emailError = useRef(null)
   const passwordError = useRef(null)
-  const [rememberMe, setRemember] = useState(useSelector(state => rememberMeSelector(state)) || null)
+  const [rememberMe, setRemember] = useState(useSelector(state => rememberMeSelector(state)))
   const userId = useSelector(state => userInfosSelector(state).id)
 
   // Initiate user profile & set rememberMe value to store from localStorage on refresh
   useEffect(() => {
     dispatch(initProfile())
-    if (rememberMe === null) {
+    if (localStorage.getItem('ARGENTBANK_rememberMe')) {
       setRemember(localStorage.getItem('ARGENTBANK_rememberMe') === 'true')
     }
   }, [])
 
   // Set rememberMe value to store
   useEffect(() => {
-    dispatch(setRememberMe(rememberMe, email))
+    dispatch(setRememberMe(rememberMe))
+    localStorage.setItem('ARGENTBANK_rememberMe', rememberMe)
   }, [rememberMe])
 
   // Auto-displays user email on demand
   useEffect(() => {
-    if (rememberMe &&
+    if (rememberMe === true &&
       localStorage.ARGENTBANK_email !== "") {
       setEmail(localStorage.ARGENTBANK_email)
       document.querySelector('#remember-me').setAttribute('checked', true)
+    } else {
+      setEmail('')
     }
   }, [rememberMe])
 
@@ -60,7 +63,7 @@ const Signin = () => {
 
   // Toggle rememberMe value on check input
   function toggleRememberMe() {
-    console.log('TOGGLE', !rememberMe, email);
+    console.log('TOGGLE -', !rememberMe);
     setRemember(!rememberMe)
   }
 

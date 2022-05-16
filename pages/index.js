@@ -25,7 +25,6 @@ export default function Home() {
     useEffect(() => {
         if (localStorage.getItem('ARGENTBANK_rememberMe' == true)) {
             if (localStorage.getItem('ARGENTBANK_userInfos')) {
-                // dispatch(setRememberMe())
                 dispatch(fetching())
                 dispatch(resolvedUser(JSON.parse(localStorage.getItem('ARGENTBANK_userInfos')), JSON.parse(localStorage.getItem('ARGENTBANK_rememberMe'))))
             }
