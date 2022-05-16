@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const { serverRuntimeConfig } = getConfig()
 
 const users = require('data/users.json')
+// const users = require('data/users.json') 
 
 export default function handler(req, res) {
     switch (req.method) {

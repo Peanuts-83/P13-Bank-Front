@@ -54,7 +54,6 @@ export function initProfile() {
             console.log('DISCONNECTING - Empty User Credentials')
         }
         dispatch(init())
-        // dispatch(setRememberMe(false, ''))
         return
     }
 }
@@ -64,7 +63,6 @@ export function initProfile() {
  * It returns a thunk that dispatches a fetching action, then makes an API call, then dispatches a
  * resolved or rejected action based on the result of the API call
  * @param {object} user - User's fisrtName,lastName, email, token, id & createdAt
- * @param {boolean} rememberMe
  * @returns A thunk
  */
 export function signinUser(user) {

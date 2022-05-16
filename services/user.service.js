@@ -1,8 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import getConfig from 'next/config';
 import router from 'next/router'
-import { signinUser } from 'store/slices/userIdSlice';
-import { useDispatch, useSelector } from 'react-redux'
 import { fetchWrapper } from 'helpers';
 
 const { publicRuntimeConfig } = getConfig()
