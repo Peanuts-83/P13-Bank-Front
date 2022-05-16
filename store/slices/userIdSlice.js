@@ -336,12 +336,12 @@ const { actions, reducer } = createSlice({
         resolvedUser: (draft, action) => {
                 if (draft.status === 'pending' || draft.status === 'updating') {
                     draft.status = 'connected'
-                    draft.infos.email = action.payload.user.email
-                    draft.infos.id = action.payload.user.id
-                    draft.infos.firstName = action.payload.user.firstName
-                    draft.infos.lastName = action.payload.user.lastName
-                    draft.infos.createdAt = action.payload.user.createdAt
-                    draft.infos.token = action.payload.user.token
+                    draft.infos.email = action.payload.email
+                    draft.infos.id = action.payload.id
+                    draft.infos.firstName = action.payload.firstName
+                    draft.infos.lastName = action.payload.lastName
+                    draft.infos.createdAt = action.payload.createdAt
+                    draft.infos.token = action.payload.token
                     return
                 }
                 return

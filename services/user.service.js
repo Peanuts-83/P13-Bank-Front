@@ -28,13 +28,7 @@ async function login(email, password) {
 }
 
 function logout() {
-    if (localStorage.getItem('ARGENTBANK_rememberMe') === true) {
-        
-        const email = localStorage.getItem('ARGENTBANK_userInfos').email
-        localStorage.setItem('ARGENTBANK_userInfos', {email: email})
-    } else {
-        localStorage.removeItem('ARGENTBANK_userInfos')
-    }
+    localStorage.removeItem('ARGENTBANK_userInfos')
     userSubject.next(null)
     router.push('/')
 }
